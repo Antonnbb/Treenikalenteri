@@ -1,0 +1,8 @@
+POST http://localhost:3001/register
+Content-Type: application/json
+
+{
+  "username": "testi2",
+  "email": "testi2@testi.fi",
+  "password": "salasana123"
+}

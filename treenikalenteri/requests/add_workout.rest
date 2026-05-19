@@ -1,0 +1,12 @@
+POST http://localhost:3001/workouts
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "date": "2026-05-20",
+  "sport": "Pyöräily",
+  "duration_minutes": 60,
+  "distance_km": 20,
+  "intensity_zone": 2,
+  "comment": "Kevyt pyörälenkki"
+}
