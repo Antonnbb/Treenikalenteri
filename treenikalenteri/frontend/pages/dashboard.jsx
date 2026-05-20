@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import Navbar from "/pages/navbar.jsx"
+import AddWorkout from "/pages/addworkout.jsx"
 
 export default function Dashboard() {
     const [workouts, setWorkouts] = useState([])
@@ -57,6 +58,8 @@ export default function Dashboard() {
                     ))
                 )}
             </div>
+            <AddWorkout onWorkoutAdded={(newWorkout) => setWorkouts([...workouts, newWorkout])} />
         </>
+        
     )
 }
