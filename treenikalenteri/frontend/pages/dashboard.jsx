@@ -1,65 +1,182 @@
 import { useEffect, useState } from "react"
 import Navbar from "/pages/navbar.jsx"
-import AddWorkout from "/pages/addworkout.jsx"
+import "./dashboard.css"
 
 export default function Dashboard() {
     const [workouts, setWorkouts] = useState([])
-    const [loading, setLoading] = useState(true)
+
+    const [form, setForm] = useState({
+        date: "",
+        duration_minutes: "",
+        distance_km: "",
+        sport: "Juoksu",
+        intensity_zone: "",
+        comment: ""
+    })
 
     useEffect(() => {
-        const fetchWorkouts = async () => {
-            try {
-                const token = localStorage.getItem("token")
-
-                const res = await fetch("http://localhost:3001/workouts", {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                })
-
-                const data = await res.json()
-                setWorkouts(data)
-            } catch (err) {
-                console.error(err)
-            } finally {
-                setLoading(false)
-            }
-        }
-
         fetchWorkouts()
     }, [])
 
-    if (loading) return <p>Ladataan...</p>
+    const fetchWorkouts = async () => {
+        const token = localStorage.getItem("token")
+
+        const res = await fetch("http://localhost:3001/workouts", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+
+        const data = await res.json()
+        setWorkouts(Array.isArray(data) ? data : [])
+    }
+
+    const handleChange = (e) => {
+        setForm({
+            ...form,
+            [e.target.name]: e.target.value
+        })
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+
+        const token = localStorage.getItem("token")
+
+        const res = await fetch("http://localhost:3001/workouts", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify(form)
+        })
+
+        const data = await res.json()
+
+        if (res.ok) {
+            setWorkouts([...workouts, data[0]])
+            setForm({
+                date: "",
+                duration_minutes: "",
+                distance_km: "",
+                sport: "Juoksu",
+                intensity_zone: "",
+                comment: ""
+            })
+        } else {
+            alert(data.error || "Treenin tallennus epäonnistui")
+        }
+    }
+
+    const totalMinutes = workouts.reduce(
+        (sum, w) => sum + Number(w.duration_minutes || 0),
+        0
+    )
+
+    const totalDistance = workouts.reduce(
+        (sum, w) => sum + Number(w.distance_km || 0),
+        0
+    )
 
     return (
         <>
             <Navbar />
-            <div style={{ padding: "20px" }}>
-                <h1>Dashboard</h1>
 
-                {workouts.length === 0 ? (
-                    <p>Ei treenejä vielä</p>
-                ) : (
-                    workouts.map(workout => (
-                        <div
-                            key={workout.id}
-                            style={{
-                                background: "#1e293b",
-                                padding: "15px",
-                                marginBottom: "10px",
-                                borderRadius: "10px"
-                            }}
-                        >
-                            <h3>{workout.sport}</h3>
-                            <p>Päivä: {workout.date}</p>
-                            <p>Kesto: {workout.duration_minutes} min</p>
-                            <p>Matka: {workout.distance_km} km</p>
+            <main className="dashboard">
+                <section className="card">
+                    <h2>Lisää treeni</h2>
+                    <p>Kirjaa uusi harjoitus</p>
+
+                    <form className="workout-form" onSubmit={handleSubmit}>
+                        <label>Päivämäärä</label>
+                        <input
+                            name="date"
+                            type="date"
+                            value={form.date}
+                            onChange={handleChange}
+                            required
+                        />
+
+                        <div className="row">
+                            <div>
+                                <label>Kesto (min)</label>
+                                <input
+                                    name="duration_minutes"
+                                    type="number"
+                                    value={form.duration_minutes}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label>Matka (km)</label>
+                                <input
+                                    name="distance_km"
+                                    type="number"
+                                    step="0.1"
+                                    value={form.distance_km}
+                                    onChange={handleChange}
+                                />
+                            </div>
                         </div>
-                    ))
-                )}
-            </div>
-            <AddWorkout onWorkoutAdded={(newWorkout) => setWorkouts([...workouts, newWorkout])} />
+
+                        <label>Laji</label>
+                        <select
+                            name="sport"
+                            value={form.sport}
+                            onChange={handleChange}
+                        >
+                            <option>Juoksu</option>
+                            <option>Pyöräily</option>
+                            <option>Uinti</option>
+                            <option>Kuntosali</option>
+                        </select>
+
+                        <label>Tehoalue (valinnainen)</label>
+                        <select
+                            name="intensity_zone"
+                            value={form.intensity_zone}
+                            onChange={handleChange}
+                        >
+                            <option value="">Ei määritelty</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+
+                        <label>Kommentti (valinnainen)</label>
+                        <textarea
+                            name="comment"
+                            placeholder="Lisää muistiinpanoja..."
+                            value={form.comment}
+                            onChange={handleChange}
+                        />
+
+                        <button type="submit">Tallenna treeni</button>
+                    </form>
+                </section>
+
+                <section className="card">
+                    <h2>Viikon yhteenveto</h2>
+                    <p>18.5. - 24.5.2026</p>
+
+                    <div className="summary-grid">
+                        <div className="summary-box">
+                            <span>Kokonaisaika</span>
+                            <strong>{totalMinutes} min</strong>
+                        </div>
+
+                        <div className="summary-box">
+                            <span>Kokonaismatka</span>
+                            <strong>{totalDistance.toFixed(1)} km</strong>
+                        </div>
+                    </div>
+                </section>
+            </main>
         </>
-        
     )
 }

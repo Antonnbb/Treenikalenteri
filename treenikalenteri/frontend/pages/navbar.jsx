@@ -4,20 +4,20 @@ import "./navbar.css"
 export default function Navbar() {
     const navigate = useNavigate()
 
-    const handleLogout = () => {
+    const logout = () => {
         localStorage.removeItem("token")
         navigate("/")
     }
 
     return (
         <nav className="navbar">
-            <h2 className="logo">Treenikalenteri</h2>
+            <h1>Treenikalenteri</h1>
 
-            <div className="links">
-                <Link to="/dashboard">Kalenteri</Link>
+            <div className="nav-links">
+                <Link className="active" to="/dashboard">Kalenteri</Link>
                 <Link to="/analysis">Analyysi</Link>
                 <Link to="/profile">Profiili</Link>
-                <button onClick={handleLogout}>Logout</button>
+                <button onClick={logout}>Logout</button>
             </div>
         </nav>
     )
