@@ -130,6 +130,55 @@ app.post('/workouts', authenticateToken, async (req, res) => {
     res.status(201).json(data)
 })
 
+app.delete('/workouts/:id', authenticateToken, async (req, res) => {
+    const { id } = req.params
+
+    const { error } = await supabase
+        .from('workouts')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', req.user.id)
+
+    if (error) {
+        return res.status(500).json({ error: error.message })
+    }
+
+    res.json({ message: 'Treeni poistettu' })
+})
+
+app.put('/workouts/:id', authenticateToken, async (req, res) => {
+    const { id } = req.params
+
+    const {
+        date,
+        sport,
+        duration_minutes,
+        distance_km,
+        intensity_zone,
+        comment
+    } = req.body
+
+    const { data, error } = await supabase
+        .from('workouts')
+        .update({
+            date,
+            sport,
+            duration_minutes,
+            distance_km,
+            intensity_zone,
+            comment
+        })
+        .eq('id', id)
+        .eq('user_id', req.user.id)
+        .select()
+
+    if (error) {
+        return res.status(500).json({ error: error.message })
+    }
+
+    res.json(data)
+})
+
 
 const PORT = 3001
 app.listen(PORT, () => {
