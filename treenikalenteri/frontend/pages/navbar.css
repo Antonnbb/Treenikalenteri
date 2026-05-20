@@ -1,41 +1,47 @@
 .navbar {
+    height: 80px;
+    background: #050505;
+    border-bottom: 1px solid #1f1f1f;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 15px 30px;
-    background: #0f172a;
+    justify-content: space-between;
+    padding: 0 32px;
+}
+
+.navbar h1 {
+    font-size: 22px;
     color: white;
 }
 
-.logo {
-    font-size: 20px;
-}
-
-.links {
+.nav-links {
     display: flex;
-    gap: 20px;
     align-items: center;
+    gap: 22px;
 }
 
-.links a {
+.nav-links a {
     color: white;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 700;
 }
 
-.links a:hover {
-    color: #38bdf8;
+.nav-links a.active {
+    background: white;
+    color: black;
+    padding: 12px 18px;
+    border-radius: 10px;
 }
 
-.links button {
+.nav-links button {
     background: #ef4444;
-    border: none;
-    padding: 8px 12px;
     color: white;
-    border-radius: 5px;
+    padding: 12px 18px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 700;
     cursor: pointer;
 }
 
-.links button:hover {
+.nav-links button:hover {
     background: #dc2626;
 }
