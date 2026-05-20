@@ -1,5 +1,7 @@
 import { useState } from "react"
 import { login } from "/pages/api.js"
+import { Link } from "react-router-dom"
+import "./login.css"
 
 export default function Login() {
     const [email, setEmail] = useState("")
@@ -36,6 +38,9 @@ export default function Login() {
             />
 
             <button type="submit">Login</button>
+            <p>
+                Ei tiliä? <Link to="/register">Rekisteröidy</Link>
+            </p>
         </form>
     )
 }
