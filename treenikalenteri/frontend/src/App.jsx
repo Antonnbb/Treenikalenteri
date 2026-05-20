@@ -1,13 +1,15 @@
-import { useState } from 'react'
-import Login from "/pages/login.jsx"
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import Login from "/pages/login"
+import Register from "/pages/register"
 
 function App() {
-
-
   return (
-    <div>
-      <Login />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
