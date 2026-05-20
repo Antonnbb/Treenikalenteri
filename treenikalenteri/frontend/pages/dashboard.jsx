@@ -79,6 +79,17 @@ export default function Dashboard() {
         0
     )
 
+    const zones = workouts.reduce((acc, w) => {
+        if (!w.intensity_zone) return acc
+        acc[w.intensity_zone] = (acc[w.intensity_zone] || 0) + Number(w.duration_minutes || 0)
+        return acc
+    }, {})
+
+    const sports = workouts.reduce((acc, w) => {
+        acc[w.sport] = (acc[w.sport] || 0) + Number(w.duration_minutes || 0)
+        return acc
+    }, {})
+
     return (
         <>
             <Navbar />
@@ -174,6 +185,21 @@ export default function Dashboard() {
                             <span>Kokonaismatka</span>
                             <strong>{totalDistance.toFixed(1)} km</strong>
                         </div>
+
+                        <h2 className="section-title">Tehoalueet</h2>
+                        {Object.entries(zones).map(([zone, minutes]) => (
+                            <div className="summary-row" key={zone}>
+                                <span>Tehoalue {zone}</span>
+                                <strong>{minutes} min</strong>
+                            </div>
+                        ))}
+                        <h2 className="section-title">Lajit</h2>
+                        {Object.entries(sports).map(([sport, minutes]) => (
+                            <div className="summary-row" key={sport}>
+                                <span>{sport}</span>
+                                <strong>{minutes} min</strong>
+                            </div>
+                        ))}
                     </div>
                 </section>
             </main>
