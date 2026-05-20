@@ -105,3 +105,20 @@ button:hover {
     margin-top: 8px;
     font-size: 32px;
 }
+
+.section-title {
+    margin-top: 42px;
+    margin-bottom: 22px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 22px 0;
+    font-size: 20px;
+}
+
+.summary-row strong {
+    font-size: 22px;
+}
