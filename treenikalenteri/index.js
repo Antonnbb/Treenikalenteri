@@ -10,6 +10,16 @@ app.use(express.json())
 app.use(cors())
 
 
+async function verifyCaptcha(captcha) {
+    const response = await fetch(
+        `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET}&response=${captcha}`,
+        { method: 'POST' }
+    )
+
+    const data = await response.json()
+    return data.success
+}
+
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
@@ -29,7 +39,13 @@ function authenticateToken(req, res, next) {
 }
 
 app.post('/register', async (req, res) => {
-    const { username, email, password } = req.body
+    const { username, email, password, captcha } = req.body
+
+    const captchaOk = await verifyCaptcha(captcha)
+
+    if (!captchaOk) {
+        return res.status(400).json({ error: 'Captcha epäonnistui' })
+    }
 
     const password_hash = await bcrypt.hash(password, 10)
 
@@ -46,7 +62,13 @@ app.post('/register', async (req, res) => {
 })
 
 app.post('/login', async (req, res) => {
-    const { email, password } = req.body
+    const { email, password, captcha } = req.body
+
+    const captchaOk = await verifyCaptcha(captcha)
+
+    if (!captchaOk) {
+        return res.status(400).json({ error: 'Captcha epäonnistui' })
+    }
 
     const { data: users, error } = await supabase
         .from('profiles')
