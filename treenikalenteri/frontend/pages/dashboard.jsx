@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import Navbar from "/pages/navbar.jsx"
+import Navbar from "./navbar.jsx"
 import "./dashboard.css"
 
 export default function Dashboard() {
@@ -69,6 +69,19 @@ export default function Dashboard() {
         }
     }
 
+    const handleDelete = async (id) => {
+        const token = localStorage.getItem("token")
+
+        await fetch(`http://localhost:3001/workouts/${id}`, {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+
+        setWorkouts(workouts.filter((w) => w.id !== id))
+    }
+
     const totalMinutes = workouts.reduce(
         (sum, w) => sum + Number(w.duration_minutes || 0),
         0
@@ -81,12 +94,15 @@ export default function Dashboard() {
 
     const zones = workouts.reduce((acc, w) => {
         if (!w.intensity_zone) return acc
-        acc[w.intensity_zone] = (acc[w.intensity_zone] || 0) + Number(w.duration_minutes || 0)
+        acc[w.intensity_zone] =
+            (acc[w.intensity_zone] || 0) +
+            Number(w.duration_minutes || 0)
         return acc
     }, {})
 
     const sports = workouts.reduce((acc, w) => {
-        acc[w.sport] = (acc[w.sport] || 0) + Number(w.duration_minutes || 0)
+        acc[w.sport] =
+            (acc[w.sport] || 0) + Number(w.duration_minutes || 0)
         return acc
     }, {})
 
@@ -188,8 +204,7 @@ export default function Dashboard() {
                     </div>
 
                     <div className="summary-section">
-                        <h2>Tehoalueet</h2>
-
+                        <h3>Tehoalueet</h3>
                         {Object.entries(zones).map(([zone, minutes]) => (
                             <div className="summary-row" key={zone}>
                                 <span>Tehoalue {zone}</span>
@@ -199,8 +214,7 @@ export default function Dashboard() {
                     </div>
 
                     <div className="summary-section">
-                        <h2>Lajit</h2>
-
+                        <h3>Lajit</h3>
                         {Object.entries(sports).map(([sport, minutes]) => (
                             <div className="summary-row" key={sport}>
                                 <span>{sport}</span>
@@ -208,6 +222,59 @@ export default function Dashboard() {
                             </div>
                         ))}
                     </div>
+                </section>
+
+                <section className="card">
+                    <h2>Viikon treenit</h2>
+
+                    {workouts.map((w) => (
+                        <div className="workout-item" key={w.id}>
+                            <div className="workout-header">
+                                <div>
+                                    <strong>
+                                        {new Date(w.date).toLocaleDateString(
+                                            "fi-FI",
+                                            {
+                                                weekday: "long",
+                                                day: "numeric",
+                                                month: "numeric",
+                                                year: "numeric"
+                                            }
+                                        )}
+                                    </strong>
+
+                                    <span className="sport">
+                                        {w.sport}
+                                    </span>
+
+                                    {w.intensity_zone && (
+                                        <span className="zone">
+                                            Tehoalue {w.intensity_zone}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <button
+                                    className="delete-btn"
+                                    onClick={() => handleDelete(w.id)}
+                                >
+                                    🗑
+                                </button>
+                            </div>
+
+                            <div className="workout-meta">
+                                {w.duration_minutes} min{" "}
+                                {w.distance_km &&
+                                    `• ${w.distance_km} km`}
+                            </div>
+
+                            {w.comment && (
+                                <p className="workout-comment">
+                                    {w.comment}
+                                </p>
+                            )}
+                        </div>
+                    ))}
                 </section>
             </main>
         </>
