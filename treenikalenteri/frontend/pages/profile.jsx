@@ -1,101 +1,82 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import Navbar from "./navbar.jsx"
 import "./profile.css"
 
 export default function Profile() {
-    const [user, setUser] = useState({
-        username: "",
-        email: ""
-    })
+    const [name, setName] = useState("")
+    const [email, setEmail] = useState("")
+    const [sharedEmail, setSharedEmail] = useState("")
+    const [sharedUsers, setSharedUsers] = useState([])
 
-    const [coachEmail, setCoachEmail] = useState("")
-    const [isPublic, setIsPublic] = useState(false)
-
-    useEffect(() => {
-        fetchProfile()
-    }, [])
-
-    const fetchProfile = async () => {
-        const token = localStorage.getItem("token")
-
-        const res = await fetch("http://localhost:3001/profile", {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-
-        const data = await res.json()
-
-        if (res.ok) {
-            setUser(data)
-            setCoachEmail(data.coach_email || "")
-            setIsPublic(data.is_public || false)
-        }
+    const handleSave = () => {
+        alert("Tallennettu (tee backend myöhemmin)")
     }
 
-    const handleSave = async (e) => {
-        e.preventDefault()
+    const handleAddUser = () => {
+        if (!sharedEmail) return
 
-        const token = localStorage.getItem("token")
-
-        const res = await fetch("http://localhost:3001/profile", {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                username: user.username,
-                coach_email: coachEmail,
-                is_public: isPublic
-            })
-        })
-
-        const data = await res.json()
-
-        if (res.ok) {
-            alert("Tallennettu!")
-        } else {
-            alert(data.error || "Virhe")
-        }
+        setSharedUsers([...sharedUsers, sharedEmail])
+        setSharedEmail("")
     }
 
     return (
-        <div className="profile-container">
-            <div className="profile-card">
-                <h2>Profiili</h2>
-                <p>Hallitse käyttäjätietojasi</p>
+        <>
+            <Navbar />
 
-                <form className="profile-form" onSubmit={handleSave}>
-                    <label>Käyttäjänimi</label>
-                    <input
-                        value={user.username}
-                        onChange={(e) =>
-                            setUser({ ...user, username: e.target.value })
-                        }
-                    />
+            <main className="dashboard">
+                {/* PROFIILI */}
+                <section className="card">
+                    <h2>Profiilitiedot</h2>
+                    <p>Hallinnoi käyttäjätietojasi</p>
 
-                    <label>Email</label>
-                    <input value={user.email} disabled />
-
-                    <label>Valmentajan sähköposti</label>
-                    <input
-                        placeholder="esim. coach@gmail.com"
-                        value={coachEmail}
-                        onChange={(e) => setCoachEmail(e.target.value)}
-                    />
-
-                    <label className="checkbox">
+                    <div className="profile-form">
+                        <label>Nimi</label>
                         <input
-                            type="checkbox"
-                            checked={isPublic}
-                            onChange={(e) => setIsPublic(e.target.checked)}
+                            placeholder="Nimi"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
                         />
-                        Julkinen profiili (kaikki näkee treenit)
-                    </label>
 
-                    <button type="submit">Tallenna muutokset</button>
-                </form>
-            </div>
-        </div>
+                        <label>Sähköposti</label>
+                        <input
+                            placeholder="email@example.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
+
+                        <button onClick={handleSave}>
+                            Tallenna muutokset
+                        </button>
+                    </div>
+                </section>
+
+                {/* DATAN JAKAMINEN */}
+                <section className="card">
+                    <h2>Datan jakaminen</h2>
+                    <p>Hallinnoi kuka voi nähdä treenidatasi</p>
+
+                    <div className="share-row">
+                        <input
+                            placeholder="Käyttäjän sähköposti"
+                            value={sharedEmail}
+                            onChange={(e) => setSharedEmail(e.target.value)}
+                        />
+                        <button onClick={handleAddUser}>Lisää</button>
+                    </div>
+
+                    {sharedUsers.length === 0 ? (
+                        <p>Et ole jakanut dataasi kenenkään kanssa</p>
+                    ) : (
+                        <div className="shared-list">
+                            {sharedUsers.map((user, i) => (
+                                <div key={i} className="shared-user">
+                                    {user}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </section>
+            </main>
+        </>
     )
 }
