@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom"
+import { NavLink, useNavigate } from "react-router-dom"
 import "./navbar.css"
 
 export default function Navbar() {
@@ -14,9 +14,17 @@ export default function Navbar() {
             <h1>Treenikalenteri</h1>
 
             <div className="nav-links">
-                <Link className="active" to="/dashboard">Kalenteri</Link>
-                <Link to="/analysis">Analyysi</Link>
-                <Link to="/profile">Profiili</Link>
+                <NavLink to="/dashboard" className={({ isActive }) => isActive ? "active" : ""}>
+    Kalenteri
+</NavLink>
+
+<NavLink to="/analysis" className={({ isActive }) => isActive ? "active" : ""}>
+    Analyysi
+</NavLink>
+
+<NavLink to="/profile" className={({ isActive }) => isActive ? "active" : ""}>
+    Profiili
+</NavLink>
                 <button onClick={logout}>Logout</button>
             </div>
         </nav>
