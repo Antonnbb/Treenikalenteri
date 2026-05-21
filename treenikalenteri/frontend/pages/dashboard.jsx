@@ -185,15 +185,22 @@ export default function Dashboard() {
                             <span>Kokonaismatka</span>
                             <strong>{totalDistance.toFixed(1)} km</strong>
                         </div>
+                    </div>
 
-                        <h2 className="section-title">Tehoalueet</h2>
+                    <div className="summary-section">
+                        <h2>Tehoalueet</h2>
+
                         {Object.entries(zones).map(([zone, minutes]) => (
                             <div className="summary-row" key={zone}>
                                 <span>Tehoalue {zone}</span>
                                 <strong>{minutes} min</strong>
                             </div>
                         ))}
-                        <h2 className="section-title">Lajit</h2>
+                    </div>
+
+                    <div className="summary-section">
+                        <h2>Lajit</h2>
+
                         {Object.entries(sports).map(([sport, minutes]) => (
                             <div className="summary-row" key={sport}>
                                 <span>{sport}</span>
