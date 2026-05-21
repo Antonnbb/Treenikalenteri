@@ -120,6 +120,32 @@ app.get('/workouts', authenticateToken, async (req, res) => {
     res.json(data)
 })
 
+app.get('/profile', authenticateToken, async (req, res) => {
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', req.user.id)
+        .single()
+
+    if (error) return res.status(500).json({ error: error.message })
+
+    res.json(data)
+})
+
+app.put('/profile', authenticateToken, async (req, res) => {
+    const { username, coach_email, is_public } = req.body
+
+    const { data, error } = await supabase
+        .from('profiles')
+        .update({ username, coach_email, is_public })
+        .eq('id', req.user.id)
+        .select()
+
+    if (error) return res.status(500).json({ error: error.message })
+
+    res.json(data)
+})
+
 app.post('/workouts', authenticateToken, async (req, res) => {
     const {
         date,
