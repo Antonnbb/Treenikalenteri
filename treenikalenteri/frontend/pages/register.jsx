@@ -43,38 +43,46 @@ export default function Register() {
     }
 
     return (
-        <form onSubmit={handleRegister}>
-            <h2>Register</h2>
+        <div className="auth-container">
+            <div className="auth-card">
+                <h2>Luo tili</h2>
+                <p>Aloita treenien seuranta</p>
 
-            <input
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-            />
+                <form className="auth-form" onSubmit={handleRegister}>
+                    <input
+                        placeholder="Username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required
+                    />
 
-            <input
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-            />
+                    <input
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
 
-            <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
 
-            <ReCAPTCHA
-                sitekey="6LckVvMsAAAAAPgP69Cc7ZTJ4vg7Ksv6iy_nGRT1"
-                onChange={(value) => setCaptchaValue(value)}
-            />
+                    <ReCAPTCHA
+                        sitekey="6LckVvMsAAAAAPgP69Cc7ZTJ4vg7Ksv6iy_nGRT1"
+                        onChange={(value) => setCaptchaValue(value)}
+                    />
 
-            <button type="submit">Register</button>
+                    <button type="submit">Rekisteröidy</button>
 
-            <p>
-                Onko jo tili? <Link to="/">Kirjaudu</Link>
-            </p>
-        </form>
+                    <p>
+                        Onko jo tili? <Link to="/">Kirjaudu</Link>
+                    </p>
+                </form>
+            </div>
+        </div>
     )
 }

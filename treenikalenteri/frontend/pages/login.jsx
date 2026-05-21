@@ -41,32 +41,39 @@ export default function Login() {
     }
 
     return (
-        <form onSubmit={handleLogin}>
-            <h2>Login</h2>
+        <div className="auth-container">
+            <div className="auth-card">
+                <h2>Kirjaudu sisään</h2>
+                <p>Tervetuloa takaisin</p>
 
-            <input
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-            />
+                <form className="auth-form" onSubmit={handleLogin}>
+                    <input
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
 
-            <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
 
-            <ReCAPTCHA
-                sitekey="6LckVvMsAAAAAPgP69Cc7ZTJ4vg7Ksv6iy_nGRT1"
-                onChange={(value) => setCaptchaValue(value)}
-            />
+                    <ReCAPTCHA
+                        sitekey="6LckVvMsAAAAAPgP69Cc7ZTJ4vg7Ksv6iy_nGRT1"
+                        onChange={(value) => setCaptchaValue(value)}
+                    />
 
-            <button type="submit">Login</button>
+                    <button type="submit">Kirjaudu</button>
 
-            <p>
-                Ei tiliä? <Link to="/register">Rekisteröidy</Link>
-            </p>
-        </form>
+                    <p>
+                        Ei tiliä? <Link to="/register">Rekisteröidy</Link>
+                    </p>
+                </form>
+            </div>
+        </div>
     )
 }
