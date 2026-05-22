@@ -83,6 +83,22 @@ export default function Profile() {
         }
     }
 
+    useEffect(() => {
+        fetchSharedUsers()
+    }, [])
+
+    const fetchSharedUsers = async () => {
+        const token = localStorage.getItem("token")
+
+        const res = await axios.get("http://localhost:3001/shares", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+
+        setSharedUsers(res.data.map(user => user.email))
+    }
+
     return (
         <>
             <Navbar />
