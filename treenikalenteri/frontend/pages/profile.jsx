@@ -9,8 +9,29 @@ export default function Profile() {
     const [sharedEmail, setSharedEmail] = useState("")
     const [sharedUsers, setSharedUsers] = useState([])
 
-    const handleSave = () => {
-        alert("Tallennettu (tee backend myöhemmin)")
+    const handleSave = async (e) => {
+        e.preventDefault()
+
+        const token = localStorage.getItem("token")
+
+        try {
+            await axios.put(
+                "http://localhost:3001/profile",
+                {
+                    username: name
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            )
+
+            alert("Tallennettu!")
+        } catch (err) {
+            console.error(err)
+            alert("Tallennus epäonnistui")
+        }
     }
 
     const handleAddUser = () => {
@@ -46,7 +67,7 @@ export default function Profile() {
         }
     }
 
-    return (
+        return (
         <>
             <Navbar />
 
@@ -56,7 +77,8 @@ export default function Profile() {
                     <h2>Profiilitiedot</h2>
                     <p>Hallinnoi käyttäjätietojasi</p>
 
-                    <div className="profile-form">
+                    {/* 👇 MUUTOS: form mukaan */}
+                    <form className="profile-form" onSubmit={handleSave}>
                         <label>Nimi</label>
                         <input
                             placeholder="Nimi"
@@ -66,15 +88,14 @@ export default function Profile() {
 
                         <label>Sähköposti</label>
                         <input
-                            placeholder="email@example.com"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            disabled
                         />
 
-                        <button onClick={handleSave}>
+                        <button type="submit">
                             Tallenna muutokset
                         </button>
-                    </div>
+                    </form>
                 </section>
 
                 {/* DATAN JAKAMINEN */}
@@ -88,7 +109,9 @@ export default function Profile() {
                             value={sharedEmail}
                             onChange={(e) => setSharedEmail(e.target.value)}
                         />
-                        <button onClick={handleAddUser}>Lisää</button>
+                        <button type="button" onClick={handleAddUser}>
+                            Lisää
+                        </button>
                     </div>
 
                     {sharedUsers.length === 0 ? (
