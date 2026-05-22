@@ -10,6 +10,7 @@ export default function Dashboard() {
         duration_minutes: "",
         distance_km: "",
         sport: "Juoksu",
+        customSport: "",
         intensity_zone: "",
         comment: ""
     })
@@ -43,13 +44,20 @@ export default function Dashboard() {
 
         const token = localStorage.getItem("token")
 
+        const workoutData = {
+            ...form,
+            sport: form.sport === "Muu" ? form.customSport : form.sport
+        }
+
+        delete workoutData.customSport
+
         const res = await fetch("http://localhost:3001/workouts", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify(form)
+            body: JSON.stringify(workoutData)
         })
 
         const data = await res.json()
@@ -61,6 +69,7 @@ export default function Dashboard() {
                 duration_minutes: "",
                 distance_km: "",
                 sport: "Juoksu",
+                customSport: "",
                 intensity_zone: "",
                 comment: ""
             })
@@ -95,14 +104,12 @@ export default function Dashboard() {
     const zones = workouts.reduce((acc, w) => {
         if (!w.intensity_zone) return acc
         acc[w.intensity_zone] =
-            (acc[w.intensity_zone] || 0) +
-            Number(w.duration_minutes || 0)
+            (acc[w.intensity_zone] || 0) + Number(w.duration_minutes || 0)
         return acc
     }, {})
 
     const sports = workouts.reduce((acc, w) => {
-        acc[w.sport] =
-            (acc[w.sport] || 0) + Number(w.duration_minutes || 0)
+        acc[w.sport] = (acc[w.sport] || 0) + Number(w.duration_minutes || 0)
         return acc
     }, {})
 
@@ -159,7 +166,21 @@ export default function Dashboard() {
                             <option>Pyöräily</option>
                             <option>Uinti</option>
                             <option>Kuntosali</option>
+                            <option value="Muu">Muu</option>
                         </select>
+
+                        {form.sport === "Muu" && (
+                            <>
+                                <label>Mikä laji?</label>
+                                <input
+                                    name="customSport"
+                                    placeholder="Kirjoita laji"
+                                    value={form.customSport}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </>
+                        )}
 
                         <label>Tehoalue (valinnainen)</label>
                         <select
@@ -189,7 +210,6 @@ export default function Dashboard() {
 
                 <section className="card">
                     <h2>Viikon yhteenveto</h2>
-                    <p>18.5. - 24.5.2026</p>
 
                     <div className="summary-grid">
                         <div className="summary-box">
@@ -232,20 +252,10 @@ export default function Dashboard() {
                             <div className="workout-header">
                                 <div>
                                     <strong>
-                                        {new Date(w.date).toLocaleDateString(
-                                            "fi-FI",
-                                            {
-                                                weekday: "long",
-                                                day: "numeric",
-                                                month: "numeric",
-                                                year: "numeric"
-                                            }
-                                        )}
+                                        {new Date(w.date).toLocaleDateString("fi-FI")}
                                     </strong>
 
-                                    <span className="sport">
-                                        {w.sport}
-                                    </span>
+                                    <span className="sport">{w.sport}</span>
 
                                     {w.intensity_zone && (
                                         <span className="zone">
@@ -264,14 +274,11 @@ export default function Dashboard() {
 
                             <div className="workout-meta">
                                 {w.duration_minutes} min{" "}
-                                {w.distance_km &&
-                                    `• ${w.distance_km} km`}
+                                {w.distance_km && `• ${w.distance_km} km`}
                             </div>
 
                             {w.comment && (
-                                <p className="workout-comment">
-                                    {w.comment}
-                                </p>
+                                <p className="workout-comment">{w.comment}</p>
                             )}
                         </div>
                     ))}
