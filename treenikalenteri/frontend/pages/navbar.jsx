@@ -15,16 +15,16 @@ export default function Navbar() {
 
             <div className="nav-links">
                 <NavLink to="/dashboard" className={({ isActive }) => isActive ? "active" : ""}>
-    Kalenteri
-</NavLink>
+                    Kalenteri
+                </NavLink>
 
-<NavLink to="/analysis" className={({ isActive }) => isActive ? "active" : ""}>
-    Analyysi
-</NavLink>
+                <NavLink to="/analysis" className={({ isActive }) => isActive ? "active" : ""}>
+                    Analyysi
+                </NavLink>
 
-<NavLink to="/profile" className={({ isActive }) => isActive ? "active" : ""}>
-    Profiili
-</NavLink>
+                <NavLink to="/profile" className={({ isActive }) => isActive ? "active" : ""}>
+                    Profiili
+                </NavLink>
                 <button onClick={logout}>Logout</button>
             </div>
         </nav>
