@@ -9,6 +9,44 @@ export default function Profile() {
     const [sharedEmail, setSharedEmail] = useState("")
     const [sharedUsers, setSharedUsers] = useState([])
 
+    useEffect(() => {
+        fetchProfile()
+        fetchSharedUsers()
+    }, [])
+
+    const fetchProfile = async () => {
+        const token = localStorage.getItem("token")
+
+        try {
+            const res = await axios.get("http://localhost:3001/profile", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            setName(res.data.username)
+            setEmail(res.data.email)
+        } catch (err) {
+            console.error(err)
+        }
+    }
+
+    const fetchSharedUsers = async () => {
+        const token = localStorage.getItem("token")
+
+        try {
+            const res = await axios.get("http://localhost:3001/shares", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            setSharedUsers(res.data.map(user => user.email))
+        } catch (err) {
+            console.error(err)
+        }
+    }
+
     const handleSave = async (e) => {
         e.preventDefault()
 
@@ -17,9 +55,7 @@ export default function Profile() {
         try {
             await axios.put(
                 "http://localhost:3001/profile",
-                {
-                    username: name
-                },
+                { username: name },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -50,53 +86,11 @@ export default function Profile() {
                 }
             )
 
-            setSharedUsers([...sharedUsers, sharedEmail])
             setSharedEmail("")
-
+            fetchSharedUsers()
         } catch (err) {
             alert("Käyttäjää ei löytynyt")
         }
-    }
-    useEffect(() => {
-        fetchProfile()
-    }, [])
-
-    useEffect(() => {
-        fetchProfile()
-    }, [])
-
-    const fetchProfile = async () => {
-        const token = localStorage.getItem("token")
-
-        try {
-            const res = await axios.get("http://localhost:3001/profile", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-
-            setName(res.data.username)
-            setEmail(res.data.email)
-
-        } catch (err) {
-            console.error(err)
-        }
-    }
-
-    useEffect(() => {
-        fetchSharedUsers()
-    }, [])
-
-    const fetchSharedUsers = async () => {
-        const token = localStorage.getItem("token")
-
-        const res = await axios.get("http://localhost:3001/shares", {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-
-        setSharedUsers(res.data.map(user => user.email))
     }
 
     return (
@@ -104,12 +98,10 @@ export default function Profile() {
             <Navbar />
 
             <main className="dashboard">
-                {/* PROFIILI */}
                 <section className="card">
                     <h2>Profiilitiedot</h2>
                     <p>Hallinnoi käyttäjätietojasi</p>
 
-                    {/* 👇 MUUTOS: form mukaan */}
                     <form className="profile-form" onSubmit={handleSave}>
                         <label>Nimi</label>
                         <input
@@ -119,18 +111,12 @@ export default function Profile() {
                         />
 
                         <label>Sähköposti</label>
-                        <input
-                            value={email}
-                            disabled
-                        />
+                        <input value={email} disabled />
 
-                        <button type="submit">
-                            Tallenna muutokset
-                        </button>
+                        <button type="submit">Tallenna muutokset</button>
                     </form>
                 </section>
 
-                {/* DATAN JAKAMINEN */}
                 <section className="card">
                     <h2>Datan jakaminen</h2>
                     <p>Hallinnoi kuka voi nähdä treenidatasi</p>
@@ -141,6 +127,7 @@ export default function Profile() {
                             value={sharedEmail}
                             onChange={(e) => setSharedEmail(e.target.value)}
                         />
+
                         <button type="button" onClick={handleAddUser}>
                             Lisää
                         </button>
