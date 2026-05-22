@@ -4,8 +4,8 @@ import Navbar from "./navbar.jsx"
 import "./analysis.css"
 
 import {
-    LineChart,
-    Line,
+    BarChart,
+    Bar,
     XAxis,
     YAxis,
     Tooltip,
@@ -88,6 +88,10 @@ export default function Analysis() {
             minutes: weekWorkouts.reduce(
                 (sum, w) => sum + Number(w.duration_minutes || 0),
                 0
+            ),
+            distance: weekWorkouts.reduce(
+                (sum, w) => sum + Number(w.distance_km || 0),
+                0
             )
         }
     })
@@ -148,21 +152,28 @@ export default function Analysis() {
                             </div>
                         </div>
 
-                        <h3 className="chart-title">Treeniaika viikoittain</h3>
+                        <h3 className="chart-title">Treeniaika (minuutit)</h3>
 
                         <ResponsiveContainer width="100%" height={300}>
-                            <LineChart data={chartData}>
+                            <BarChart data={chartData}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="week" />
                                 <YAxis />
                                 <Tooltip />
-                                <Line
-                                    type="monotone"
-                                    dataKey="minutes"
-                                    stroke="#8884d8"
-                                    strokeWidth={3}
-                                />
-                            </LineChart>
+                                <Bar dataKey="minutes" fill="#d4d4d4" />
+                            </BarChart>
+                        </ResponsiveContainer>
+
+                        <h3 className="chart-title">Matka (kilometrit)</h3>
+
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart data={chartData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="week" />
+                                <YAxis />
+                                <Tooltip />
+                                <Bar dataKey="distance" fill="#d4d4d4" />
+                            </BarChart>
                         </ResponsiveContainer>
                     </section>
                 )}
