@@ -34,13 +34,29 @@ export default function Profile() {
         }
     }
 
-    const handleAddUser = () => {
+    const handleAddUser = async () => {
         if (!sharedEmail) return
 
-        setSharedUsers([...sharedUsers, sharedEmail])
-        setSharedEmail("")
-    }
+        const token = localStorage.getItem("token")
 
+        try {
+            await axios.post(
+                "http://localhost:3001/shares",
+                { email: sharedEmail },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            )
+
+            setSharedUsers([...sharedUsers, sharedEmail])
+            setSharedEmail("")
+
+        } catch (err) {
+            alert("Käyttäjää ei löytynyt")
+        }
+    }
     useEffect(() => {
         fetchProfile()
     }, [])
@@ -67,7 +83,7 @@ export default function Profile() {
         }
     }
 
-        return (
+    return (
         <>
             <Navbar />
 
