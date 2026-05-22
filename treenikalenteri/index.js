@@ -227,6 +227,36 @@ app.put('/workouts/:id', authenticateToken, async (req, res) => {
     res.json(data)
 })
 
+app.post('/shares', authenticateToken, async (req, res) => {
+    const { email } = req.body
+
+    const { data: viewer, error: viewerError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', email)
+        .single()
+
+    if (viewerError || !viewer) {
+        return res.status(404).json({ error: 'Käyttäjää ei löytynyt' })
+    }
+
+    const { data, error } = await supabase
+        .from('sharing_permissions')
+        .insert([
+            {
+                owner_id: req.user.id,
+                viewer_id: viewer.id
+            }
+        ])
+        .select()
+
+    if (error) {
+        return res.status(500).json({ error: error.message })
+    }
+
+    res.status(201).json(data)
+})
+
 
 const PORT = 3001
 app.listen(PORT, () => {
