@@ -123,7 +123,7 @@ app.get('/workouts', authenticateToken, async (req, res) => {
 app.get('/profile', authenticateToken, async (req, res) => {
     const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('username, email')
         .eq('id', req.user.id)
         .single()
 
