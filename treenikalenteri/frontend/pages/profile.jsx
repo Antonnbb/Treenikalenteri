@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import axios from "axios"
 import Navbar from "./navbar.jsx"
 import "./profile.css"
 
@@ -17,6 +18,32 @@ export default function Profile() {
 
         setSharedUsers([...sharedUsers, sharedEmail])
         setSharedEmail("")
+    }
+
+    useEffect(() => {
+        fetchProfile()
+    }, [])
+
+    useEffect(() => {
+        fetchProfile()
+    }, [])
+
+    const fetchProfile = async () => {
+        const token = localStorage.getItem("token")
+
+        try {
+            const res = await axios.get("http://localhost:3001/profile", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            setName(res.data.username)
+            setEmail(res.data.email)
+
+        } catch (err) {
+            console.error(err)
+        }
     }
 
     return (
