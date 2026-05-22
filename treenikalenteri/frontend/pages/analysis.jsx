@@ -19,7 +19,6 @@ export default function Analysis() {
     const [startDate, setStartDate] = useState("")
     const [endDate, setEndDate] = useState("")
     const [year, setYear] = useState(new Date().getFullYear())
-    const [sportFilter, setSportFilter] = useState("Kaikki")
 
     useEffect(() => {
         fetchWorkouts()
@@ -27,37 +26,38 @@ export default function Analysis() {
 
     const fetchWorkouts = async () => {
         const token = localStorage.getItem("token")
-
         try {
             const res = await axios.get("http://localhost:3001/workouts", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+                headers: { Authorization: `Bearer ${token}` }
             })
-
             setWorkouts(res.data)
         } catch (err) {
             console.error(err)
         }
     }
 
-    const filteredByYear = workouts.filter(w =>
-        new Date(w.date).getFullYear() === Number(year)
+    // 🧠 helper
+    const formatTime = (minutes) => {
+        const h = Math.floor(minutes / 60)
+        const m = minutes % 60
+        if (h === 0) return `${m} min`
+        if (m === 0) return `${h} h`
+        return `${h} h ${m} min`
+    }
+
+    // 📊 filterit
+    const filteredByYear = workouts.filter(
+        (w) => new Date(w.date).getFullYear() === Number(year)
     )
 
-    const filteredByRange = workouts.filter(w => {
-        const matchDate =
-            (!startDate || w.date >= startDate) &&
-            (!endDate || w.date <= endDate)
-
-        const matchSport =
-            sportFilter === "Kaikki" || w.sport === sportFilter
-
-        return matchDate && matchSport
+    const filteredByRange = workouts.filter((w) => {
+        if (!startDate || !endDate) return true
+        return w.date >= startDate && w.date <= endDate
     })
 
     const data = mode === "year" ? filteredByYear : filteredByRange
 
+    // 📊 summary
     const totalWorkouts = data.length
 
     const totalMinutes = data.reduce(
@@ -70,16 +70,16 @@ export default function Analysis() {
         0
     )
 
+    // 📈 viikkodata
     const chartData = Array.from({ length: 52 }, (_, i) => {
         const week = i + 1
 
-        const weekWorkouts = data.filter(w => {
+        const weekWorkouts = data.filter((w) => {
             const d = new Date(w.date)
             const firstDay = new Date(d.getFullYear(), 0, 1)
             const weekNum = Math.ceil(
                 ((d - firstDay) / 86400000 + firstDay.getDay() + 1) / 7
             )
-
             return weekNum === week
         })
 
@@ -101,6 +101,7 @@ export default function Analysis() {
             <Navbar />
 
             <main className="analysis-page">
+
                 <div className="toggle">
                     <button
                         className={mode === "year" ? "active" : ""}
@@ -119,6 +120,7 @@ export default function Analysis() {
 
                 {mode === "year" && (
                     <section className="analysis-card">
+
                         <div className="analysis-header">
                             <div>
                                 <h2>Viikoittainen analyysi</h2>
@@ -129,30 +131,13 @@ export default function Analysis() {
                                 value={year}
                                 onChange={(e) => setYear(e.target.value)}
                             >
-                                <option value="2024">2024</option>
-                                <option value="2025">2025</option>
-                                <option value="2026">2026</option>
+                                <option>2024</option>
+                                <option>2025</option>
+                                <option>2026</option>
                             </select>
                         </div>
 
-                        <div className="stats">
-                            <div className="stat">
-                                <p>Treenejä</p>
-                                <h3>{totalWorkouts}</h3>
-                            </div>
-
-                            <div className="stat">
-                                <p>Yhteensä</p>
-                                <h3>{totalMinutes} min</h3>
-                            </div>
-
-                            <div className="stat">
-                                <p>Matka</p>
-                                <h3>{totalDistance.toFixed(1)} km</h3>
-                            </div>
-                        </div>
-
-                        <h3 className="chart-title">Treeniaika (minuutit)</h3>
+                        <h3 className="chart-title">Treeniaika</h3>
 
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={chartData}>
@@ -164,7 +149,7 @@ export default function Analysis() {
                             </BarChart>
                         </ResponsiveContainer>
 
-                        <h3 className="chart-title">Matka (kilometrit)</h3>
+                        <h3 className="chart-title">Matka</h3>
 
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={chartData}>
@@ -175,65 +160,41 @@ export default function Analysis() {
                                 <Bar dataKey="distance" fill="#d4d4d4" />
                             </BarChart>
                         </ResponsiveContainer>
+
+                        <div className="analysis-summary">
+                            <div>Treenejä: {totalWorkouts}</div>
+                            <div>Yhteensä: {formatTime(totalMinutes)}</div>
+                            <div>Matka: {totalDistance.toFixed(1)} km</div>
+                        </div>
+
                     </section>
                 )}
 
                 {mode === "range" && (
                     <section className="analysis-card">
                         <h2>Aikavälianalyysi</h2>
-                        <p>Tarkastele treenejä valitulta aikaväliltä</p>
 
                         <div className="filters">
-                            <div className="filter-group">
-                                <label>Alkupäivä</label>
-                                <input
-                                    type="date"
-                                    value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                />
-                            </div>
-
-                            <div className="filter-group">
-                                <label>Loppupäivä</label>
-                                <input
-                                    type="date"
-                                    value={endDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
-                                />
-                            </div>
-                            <div className="filter-group">
-                                <label>Laji</label>
-                                <select
-                                    value={sportFilter}
-                                    onChange={(e) => setSportFilter(e.target.value)}
-                                >
-                                    <option>Kaikki</option>
-                                    <option>Juoksu</option>
-                                    <option>Pyöräily</option>
-                                    <option>Uinti</option>
-                                    <option>Kuntosali</option>
-                                </select>
-                            </div>
+                            <input
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                            />
+                            <input
+                                type="date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                            />
                         </div>
 
-                        <div className="stats">
-                            <div className="stat">
-                                <p>Treenejä</p>
-                                <h3>{totalWorkouts}</h3>
-                            </div>
-
-                            <div className="stat">
-                                <p>Yhteensä</p>
-                                <h3>{totalMinutes} min</h3>
-                            </div>
-
-                            <div className="stat">
-                                <p>Matka</p>
-                                <h3>{totalDistance.toFixed(1)} km</h3>
-                            </div>
+                        <div className="analysis-summary">
+                            <div>Treenejä: {totalWorkouts}</div>
+                            <div>Yhteensä: {formatTime(totalMinutes)}</div>
+                            <div>Matka: {totalDistance.toFixed(1)} km</div>
                         </div>
                     </section>
                 )}
+
             </main>
         </>
     )
