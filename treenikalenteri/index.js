@@ -273,6 +273,30 @@ app.post('/shares', authenticateToken, async (req, res) => {
     res.status(201).json(data)
 })
 
+app.get('/shares', authenticateToken, async (req, res) => {
+    const { data: permissions, error } = await supabase
+        .from('sharing_permissions')
+        .select('viewer_id')
+        .eq('owner_id', req.user.id)
+
+    if (error) return res.status(500).json({ error: error.message })
+
+    const viewerIds = permissions.map(p => p.viewer_id)
+
+    if (viewerIds.length === 0) {
+        return res.json([])
+    }
+
+    const { data: users, error: usersError } = await supabase
+        .from('profiles')
+        .select('email')
+        .in('id', viewerIds)
+
+    if (usersError) return res.status(500).json({ error: usersError.message })
+
+    res.json(users)
+})
+
 
 const PORT = 3001
 app.listen(PORT, () => {
