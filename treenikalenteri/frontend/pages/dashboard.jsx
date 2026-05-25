@@ -269,20 +269,36 @@ export default function Dashboard() {
                             />
                         )}
 
-                        <label>Tehoalue</label>
-                        <select
-                            name="intensity_zone"
-                            value={form.intensity_zone}
-                            onChange={handleChange}
-                        >
-                            <option value="">Ei määritelty</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                        </select>
+                        <label>Tehoalueet</label>
 
+                        <div className="zones-select">
+                            {[1, 2, 3, 4, 5].map((zone) => (
+                                <label key={zone}>
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedZones.includes(zone)}
+                                        onChange={() => toggleZone(zone)}
+                                    />
+                                    Teho {zone}
+                                </label>
+                            ))}
+                        </div>
+
+                        {selectedZones.map((zone) => (
+                            <div key={zone}>
+                                <label>Teho {zone} minuutit</label>
+                                <input
+                                    type="number"
+                                    value={zoneMinutes[zone] || ""}
+                                    onChange={(e) =>
+                                        setZoneMinutes({
+                                            ...zoneMinutes,
+                                            [zone]: e.target.value
+                                        })
+                                    }
+                                />
+                            </div>
+                        ))}
                         <label>Kommentti</label>
                         <textarea
                             name="comment"
