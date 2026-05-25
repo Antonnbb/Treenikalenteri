@@ -7,6 +7,8 @@ export default function Dashboard() {
     const [workouts, setWorkouts] = useState([])
     const [customSport, setCustomSport] = useState("")
     const [sportsList, setSportsList] = useState([])
+    const [selectedZones, setSelectedZones] = useState([])
+    const [zoneMinutes, setZoneMinutes] = useState({})
 
     useEffect(() => {
         fetchWorkouts()
@@ -74,6 +76,23 @@ export default function Dashboard() {
         e.preventDefault()
 
         const token = localStorage.getItem("token")
+
+        const zonesArray = selectedZones.map(zone => ({
+            zone,
+            minutes: Number(zoneMinutes[zone] || 0)
+        }))
+
+        // 👇 MUUTA SUN NYKYINEN POST tähän
+        await axios.post("http://localhost:3001/workouts", {
+            date: form.date,
+            sport: form.sport,
+            duration_minutes: Number(form.duration_minutes),
+            distance_km: form.distance_km === "" ? null : Number(form.distance_km),
+            comment: form.comment,
+            zones: zonesArray
+        }, {
+            headers: { Authorization: `Bearer ${token}` }
+        })
 
         if (form.sport === "Muu" && customSport.trim()) {
             try {
@@ -351,6 +370,15 @@ export default function Dashboard() {
                                 <p className="workout-comment">
                                     {w.comment}
                                 </p>
+                            )}
+                            {w.workout_zones && w.workout_zones.length > 0 && (
+                                <div className="zones">
+                                    {w.workout_zones.map((z, i) => (
+                                        <div key={i}>
+                                            Teho {z.zone}: {z.minutes} min
+                                        </div>
+                                    ))}
+                                </div>
                             )}
                         </div>
                     ))}
