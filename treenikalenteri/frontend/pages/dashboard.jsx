@@ -71,6 +71,18 @@ export default function Dashboard() {
         })
     }
 
+    const toggleZone = (zone) => {
+        if (selectedZones.includes(zone)) {
+            setSelectedZones(selectedZones.filter(z => z !== zone))
+
+            const updated = { ...zoneMinutes }
+            delete updated[zone]
+            setZoneMinutes(updated)
+        } else {
+            setSelectedZones([...selectedZones, zone])
+        }
+    }
+
     // ➕ LISÄÄ TREENI
     const handleSubmit = async (e) => {
         e.preventDefault()
