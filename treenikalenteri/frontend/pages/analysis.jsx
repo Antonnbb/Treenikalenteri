@@ -127,6 +127,13 @@ export default function Analysis() {
                     >
                         Aikaväli
                     </button>
+
+                    <button
+                        className={mode === "sports" ? "active" : ""}
+                        onClick={() => setMode("sports")}
+                    >
+                        Lajianalyysi
+                    </button>
                 </div>
 
                 {mode === "year" && (
@@ -258,6 +265,12 @@ export default function Analysis() {
                                 ))
                             )}
                         </div>
+                    </section>
+                )}
+                {mode === "sports" && (
+                    <section className="analysis-card">
+                        <h2>Lajianalyysi</h2>
+                        <p>Treenimäärät lajeittain</p>
                     </section>
                 )}
             </main>
