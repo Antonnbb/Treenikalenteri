@@ -4,6 +4,7 @@ import Register from "/pages/register"
 import Dashboard from "/pages/dashboard"
 import Profile from "/pages/profile.jsx"
 import Analysis from "/pages/analysis.jsx"
+import Shared from "/pages/shared.jsx"
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/analysis" element={<Analysis />} />
+        <Route path="/shared" element={<Shared />} />
       </Routes>
     </BrowserRouter>
   )

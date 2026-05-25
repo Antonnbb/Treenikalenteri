@@ -25,6 +25,10 @@ export default function Navbar() {
                 <NavLink to="/profile" className={({ isActive }) => isActive ? "active" : ""}>
                     Profiili
                 </NavLink>
+
+                <NavLink to="/shared" className={({ isActive }) => isActive ? "active" : ""}>
+                    Jaetut
+                </NavLink>
                 <button onClick={logout}>Logout</button>
             </div>
         </nav>
