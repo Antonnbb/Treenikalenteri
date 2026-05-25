@@ -153,8 +153,20 @@ export default function Analysis() {
                             <BarChart data={chartData}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="week" />
-                                <YAxis />
-                                <Tooltip />
+                                <YAxis domain={[0, (dataMax) => Math.max(dataMax, 10)]} />
+                                <Tooltip
+                                    formatter={(value, name) => {
+                                        if (name === "minutes") return [formatTime(value), "Aika"]
+                                        return [value, name]
+                                    }}
+                                    contentStyle={{
+                                        backgroundColor: "#fff",
+                                        borderRadius: "10px",
+                                        border: "1px solid #ccc"
+                                    }}
+                                    labelStyle={{ color: "#111", fontWeight: "600" }}
+                                    itemStyle={{ color: "#333" }}
+                                />
                                 <Bar dataKey="minutes" fill="#d4d4d4" />
                             </BarChart>
                         </ResponsiveContainer>
@@ -165,8 +177,20 @@ export default function Analysis() {
                             <BarChart data={chartData}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="week" />
-                                <YAxis />
-                                <Tooltip />
+                                <YAxis domain={[0, (dataMax) => Math.max(dataMax, 10)]} />
+                                <Tooltip
+                                    formatter={(value, name) => {
+                                        if (name === "distance") return [`${value} km`, "Matka"]
+                                        return [value, name]
+                                    }}
+                                    contentStyle={{
+                                        backgroundColor: "#fff",
+                                        borderRadius: "10px",
+                                        border: "1px solid #ccc"
+                                    }}
+                                    labelStyle={{ color: "#111", fontWeight: "600" }}
+                                    itemStyle={{ color: "#333" }}
+                                />
                                 <Bar dataKey="distance" fill="#d4d4d4" />
                             </BarChart>
                         </ResponsiveContainer>
