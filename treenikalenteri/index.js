@@ -153,30 +153,46 @@ app.post('/workouts', authenticateToken, async (req, res) => {
         sport,
         duration_minutes,
         distance_km,
-        intensity_zone,
-        comment
+        comment,
+        zones
     } = req.body
 
-    const { data, error } = await supabase
+    // 1. tallenna treeni
+    const { data: workout, error } = await supabase
         .from('workouts')
-        .insert([
-            {
-                user_id: req.user.id,
-                date,
-                sport,
-                duration_minutes,
-                distance_km,
-                intensity_zone,
-                comment
-            }
-        ])
+        .insert({
+            user_id: req.user.id,
+            date,
+            sport,
+            duration_minutes,
+            distance_km,
+            comment
+        })
         .select()
+        .single()
 
     if (error) {
         return res.status(500).json({ error: error.message })
     }
 
-    res.status(201).json(data)
+    // 2. tallenna tehoalueet
+    if (zones && zones.length > 0) {
+        const zoneData = zones.map(z => ({
+            workout_id: workout.id,
+            zone: z.zone,
+            minutes: z.minutes
+        }))
+
+        const { error: zoneError } = await supabase
+            .from('workout_zones')
+            .insert(zoneData)
+
+        if (zoneError) {
+            return res.status(500).json({ error: zoneError.message })
+        }
+    }
+
+    res.status(201).json(workout)
 })
 
 app.delete('/workouts/:id', authenticateToken, async (req, res) => {
