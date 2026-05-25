@@ -297,6 +297,37 @@ app.get('/shares', authenticateToken, async (req, res) => {
     res.json(users)
 })
 
+app.get('/shared-workouts', authenticateToken, async (req, res) => {
+    const { data: permissions, error } = await supabase
+        .from('sharing_permissions')
+        .select('owner_id')
+        .eq('viewer_id', req.user.id)
+
+    if (error) return res.status(500).json({ error: error.message })
+
+    const ownerIds = permissions.map(p => p.owner_id)
+
+    if (ownerIds.length === 0) return res.json([])
+
+    const { data, error: workoutError } = await supabase
+        .from('workouts')
+        .select(`
+            *,
+            profiles:user_id (
+                username,
+                email
+            )
+        `)
+        .in('user_id', ownerIds)
+        .order('date', { ascending: false })
+
+    if (workoutError) {
+        return res.status(500).json({ error: workoutError.message })
+    }
+
+    res.json(data)
+})
+
 
 const PORT = 3001
 app.listen(PORT, () => {
