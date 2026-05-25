@@ -18,6 +18,7 @@ export default function Analysis() {
     const [workouts, setWorkouts] = useState([])
     const [startDate, setStartDate] = useState("")
     const [endDate, setEndDate] = useState("")
+    const [sportFilter, setSportFilter] = useState("Kaikki lajit")
     const [year, setYear] = useState(new Date().getFullYear())
 
     useEffect(() => {
@@ -26,38 +27,44 @@ export default function Analysis() {
 
     const fetchWorkouts = async () => {
         const token = localStorage.getItem("token")
+
         try {
             const res = await axios.get("http://localhost:3001/workouts", {
                 headers: { Authorization: `Bearer ${token}` }
             })
+
             setWorkouts(res.data)
         } catch (err) {
             console.error(err)
         }
     }
 
-    // 🧠 helper
     const formatTime = (minutes) => {
         const h = Math.floor(minutes / 60)
         const m = minutes % 60
+
         if (h === 0) return `${m} min`
         if (m === 0) return `${h} h`
         return `${h} h ${m} min`
     }
 
-    // 📊 filterit
     const filteredByYear = workouts.filter(
         (w) => new Date(w.date).getFullYear() === Number(year)
     )
 
     const filteredByRange = workouts.filter((w) => {
-        if (!startDate || !endDate) return true
-        return w.date >= startDate && w.date <= endDate
+        const inDate =
+            (!startDate || w.date >= startDate) &&
+            (!endDate || w.date <= endDate)
+
+        const inSport =
+            sportFilter === "Kaikki lajit" || w.sport === sportFilter
+
+        return inDate && inSport
     })
 
     const data = mode === "year" ? filteredByYear : filteredByRange
 
-    // 📊 summary
     const totalWorkouts = data.length
 
     const totalMinutes = data.reduce(
@@ -70,7 +77,11 @@ export default function Analysis() {
         0
     )
 
-    // 📈 viikkodata
+    const sports = [
+        "Kaikki lajit",
+        ...new Set(workouts.map((w) => w.sport))
+    ]
+
     const chartData = Array.from({ length: 52 }, (_, i) => {
         const week = i + 1
 
@@ -80,6 +91,7 @@ export default function Analysis() {
             const weekNum = Math.ceil(
                 ((d - firstDay) / 86400000 + firstDay.getDay() + 1) / 7
             )
+
             return weekNum === week
         })
 
@@ -101,7 +113,6 @@ export default function Analysis() {
             <Navbar />
 
             <main className="analysis-page">
-
                 <div className="toggle">
                     <button
                         className={mode === "year" ? "active" : ""}
@@ -120,7 +131,6 @@ export default function Analysis() {
 
                 {mode === "year" && (
                     <section className="analysis-card">
-
                         <div className="analysis-header">
                             <div>
                                 <h2>Viikoittainen analyysi</h2>
@@ -166,13 +176,13 @@ export default function Analysis() {
                             <div>Yhteensä: {formatTime(totalMinutes)}</div>
                             <div>Matka: {totalDistance.toFixed(1)} km</div>
                         </div>
-
                     </section>
                 )}
 
                 {mode === "range" && (
                     <section className="analysis-card">
                         <h2>Aikavälianalyysi</h2>
+                        <p>Analysoi treenimääriä valitsemaltasi aikaväliltä</p>
 
                         <div className="filters">
                             <input
@@ -180,11 +190,21 @@ export default function Analysis() {
                                 value={startDate}
                                 onChange={(e) => setStartDate(e.target.value)}
                             />
+
                             <input
                                 type="date"
                                 value={endDate}
                                 onChange={(e) => setEndDate(e.target.value)}
                             />
+
+                            <select
+                                value={sportFilter}
+                                onChange={(e) => setSportFilter(e.target.value)}
+                            >
+                                {sports.map((sport, i) => (
+                                    <option key={i}>{sport}</option>
+                                ))}
+                            </select>
                         </div>
 
                         <div className="analysis-summary">
@@ -192,9 +212,38 @@ export default function Analysis() {
                             <div>Yhteensä: {formatTime(totalMinutes)}</div>
                             <div>Matka: {totalDistance.toFixed(1)} km</div>
                         </div>
+
+                        <div className="range-workouts">
+                            <h3>Yksittäiset treenit</h3>
+
+                            {filteredByRange.length === 0 ? (
+                                <p>Ei treenejä valitulla aikavälillä</p>
+                            ) : (
+                                filteredByRange.map((w) => (
+                                    <div className="range-workout" key={w.id}>
+                                        <div>
+                                            <strong>{w.sport}</strong>
+                                            <p>
+                                                {new Date(w.date).toLocaleDateString("fi-FI")}
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <span>
+                                                {formatTime(Number(w.duration_minutes || 0))}
+                                            </span>
+                                            {w.distance_km && (
+                                                <span> • {w.distance_km} km</span>
+                                            )}
+                                        </div>
+
+                                        {w.comment && <p>{w.comment}</p>}
+                                    </div>
+                                ))
+                            )}
+                        </div>
                     </section>
                 )}
-
             </main>
         </>
     )
