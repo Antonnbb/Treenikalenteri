@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react"
 import Navbar from "./navbar.jsx"
+import axios from "axios"
 import "./dashboard.css"
 
 export default function Dashboard() {
     const [workouts, setWorkouts] = useState([])
     const [customSport, setCustomSport] = useState("")
+    const [sportsList, setSportsList] = useState([])
+
+    useEffect(() => {
+        fetchWorkouts()
+        fetchSports()
+    }, [])
 
     const [form, setForm] = useState({
         date: "",
@@ -14,11 +21,6 @@ export default function Dashboard() {
         intensity_zone: "",
         comment: ""
     })
-
-    // 📥 HAE TREENIT
-    useEffect(() => {
-        fetchWorkouts()
-    }, [])
 
     const fetchWorkouts = async () => {
         const token = localStorage.getItem("token")
@@ -31,6 +33,22 @@ export default function Dashboard() {
 
         const data = await res.json()
         setWorkouts(Array.isArray(data) ? data : [])
+    }
+
+    const fetchSports = async () => {
+        const token = localStorage.getItem("token")
+
+        try {
+            const res = await axios.get("http://localhost:3001/sports", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            setSportsList(res.data)
+        } catch (err) {
+            console.error(err)
+        }
     }
 
     // 🧠 AIKA FORMAT
@@ -57,8 +75,26 @@ export default function Dashboard() {
 
         const token = localStorage.getItem("token")
 
+        if (form.sport === "Muu" && customSport.trim()) {
+            try {
+                await axios.post(
+                    "http://localhost:3001/sports",
+                    { name: customSport.trim() },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                )
+
+                fetchSports() // päivittää dropdown heti
+            } catch (err) {
+                console.error(err)
+            }
+        }
+
         const finalSport =
-            form.sport === "Muu" ? customSport : form.sport
+            form.sport === "Muu" ? customSport.trim() : form.sport
 
         const res = await fetch("http://localhost:3001/workouts", {
             method: "POST",
@@ -190,6 +226,11 @@ export default function Dashboard() {
                             <option>Pyöräily</option>
                             <option>Uinti</option>
                             <option>Kuntosali</option>
+
+                            {sportsList.map((s) => (
+                                <option key={s.id}>{s.name}</option>
+                            ))}
+
                             <option value="Muu">Muu</option>
                         </select>
 
