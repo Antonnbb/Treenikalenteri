@@ -10,27 +10,24 @@ export default function Dashboard() {
     const [selectedZones, setSelectedZones] = useState([])
     const [zoneMinutes, setZoneMinutes] = useState({})
 
-    useEffect(() => {
-        fetchWorkouts()
-        fetchSports()
-    }, [])
-
     const [form, setForm] = useState({
         date: "",
         duration_minutes: "",
         distance_km: "",
         sport: "Juoksu",
-        intensity_zone: "",
         comment: ""
     })
+
+    useEffect(() => {
+        fetchWorkouts()
+        fetchSports()
+    }, [])
 
     const fetchWorkouts = async () => {
         const token = localStorage.getItem("token")
 
         const res = await fetch("http://localhost:3001/workouts", {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+            headers: { Authorization: `Bearer ${token}` }
         })
 
         const data = await res.json()
@@ -42,9 +39,7 @@ export default function Dashboard() {
 
         try {
             const res = await axios.get("http://localhost:3001/sports", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+                headers: { Authorization: `Bearer ${token}` }
             })
 
             setSportsList(res.data)
@@ -53,7 +48,6 @@ export default function Dashboard() {
         }
     }
 
-    // 🧠 AIKA FORMAT
     const formatTime = (minutes) => {
         const h = Math.floor(minutes / 60)
         const m = minutes % 60
@@ -63,7 +57,6 @@ export default function Dashboard() {
         return `${h} h ${m} min`
     }
 
-    // 🔄 INPUT HANDLER
     const handleChange = (e) => {
         setForm({
             ...form,
@@ -71,103 +64,92 @@ export default function Dashboard() {
         })
     }
 
-    // ➕ LISÄÄ TREENI
+    const toggleZone = (zone) => {
+        if (selectedZones.includes(zone)) {
+            setSelectedZones(selectedZones.filter(z => z !== zone))
+
+            const updated = { ...zoneMinutes }
+            delete updated[zone]
+            setZoneMinutes(updated)
+        } else {
+            setSelectedZones([...selectedZones, zone])
+        }
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault()
 
         const token = localStorage.getItem("token")
 
-        const zonesArray = selectedZones.map(zone => ({
-            zone,
-            minutes: Number(zoneMinutes[zone] || 0)
-        }))
-
-        // 👇 MUUTA SUN NYKYINEN POST tähän
-        await axios.post("http://localhost:3001/workouts", {
-            date: form.date,
-            sport: form.sport,
-            duration_minutes: Number(form.duration_minutes),
-            distance_km: form.distance_km === "" ? null : Number(form.distance_km),
-            comment: form.comment,
-            zones: zonesArray
-        }, {
-            headers: { Authorization: `Bearer ${token}` }
-        })
+        const finalSport =
+            form.sport === "Muu" ? customSport.trim() : form.sport
 
         if (form.sport === "Muu" && customSport.trim()) {
             try {
                 await axios.post(
                     "http://localhost:3001/sports",
                     { name: customSport.trim() },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    }
+                    { headers: { Authorization: `Bearer ${token}` } }
                 )
 
-                fetchSports() // päivittää dropdown heti
+                fetchSports()
             } catch (err) {
                 console.error(err)
             }
         }
 
-        const finalSport =
-            form.sport === "Muu" ? customSport.trim() : form.sport
+        const zonesArray = selectedZones.map(zone => ({
+            zone,
+            minutes: Number(zoneMinutes[zone] || 0)
+        }))
 
-        const workoutData = {
-            date: form.date,
-            duration_minutes: Number(form.duration_minutes) || 0,
-            distance_km: form.distance_km === "" ? null : Number(form.distance_km),
-            sport: finalSport,
-            intensity_zone: form.intensity_zone === "" ? null : Number(form.intensity_zone),
-            comment: form.comment
-        }
+        try {
+            const res = await axios.post(
+                "http://localhost:3001/workouts",
+                {
+                    date: form.date,
+                    sport: finalSport,
+                    duration_minutes: Number(form.duration_minutes) || 0,
+                    distance_km: form.distance_km === "" ? null : Number(form.distance_km),
+                    comment: form.comment,
+                    zones: zonesArray
+                },
+                {
+                    headers: { Authorization: `Bearer ${token}` }
+                }
+            )
 
-        const res = await fetch("http://localhost:3001/workouts", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify(workoutData)
-        })
-
-        const data = await res.json()
-
-        if (res.ok) {
-            setWorkouts([...workouts, data[0]])
+            setWorkouts([res.data, ...workouts])
 
             setForm({
                 date: "",
                 duration_minutes: "",
                 distance_km: "",
                 sport: "Juoksu",
-                intensity_zone: "",
                 comment: ""
             })
 
             setCustomSport("")
-        } else {
-            alert(data.error || "Tallennus epäonnistui")
+            setSelectedZones([])
+            setZoneMinutes({})
+            fetchWorkouts()
+        } catch (err) {
+            console.error(err)
+            alert("Tallennus epäonnistui")
         }
     }
 
-    // 🗑 POISTA
     const handleDelete = async (id) => {
         const token = localStorage.getItem("token")
 
         await fetch(`http://localhost:3001/workouts/${id}`, {
             method: "DELETE",
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+            headers: { Authorization: `Bearer ${token}` }
         })
 
         setWorkouts(workouts.filter((w) => w.id !== id))
     }
 
-    // 📊 YHTEENVETO
     const totalMinutes = workouts.reduce(
         (sum, w) => sum + Number(w.duration_minutes || 0),
         0
@@ -179,11 +161,11 @@ export default function Dashboard() {
     )
 
     const zones = workouts.reduce((acc, w) => {
-        if (!w.intensity_zone) return acc
+        if (!w.workout_zones) return acc
 
-        acc[w.intensity_zone] =
-            (acc[w.intensity_zone] || 0) +
-            Number(w.duration_minutes || 0)
+        w.workout_zones.forEach((z) => {
+            acc[z.zone] = (acc[z.zone] || 0) + Number(z.minutes || 0)
+        })
 
         return acc
     }, {})
@@ -201,13 +183,10 @@ export default function Dashboard() {
             <Navbar />
 
             <main className="dashboard">
-
-                {/* ➕ LISÄÄ */}
                 <section className="card">
                     <h2>Lisää treeni</h2>
 
                     <form className="workout-form" onSubmit={handleSubmit}>
-
                         <label>Päivämäärä</label>
                         <input
                             name="date"
@@ -263,25 +242,40 @@ export default function Dashboard() {
                             <input
                                 placeholder="Kirjoita laji"
                                 value={customSport}
-                                onChange={(e) =>
-                                    setCustomSport(e.target.value)
-                                }
+                                onChange={(e) => setCustomSport(e.target.value)}
                             />
                         )}
 
-                        <label>Tehoalue</label>
-                        <select
-                            name="intensity_zone"
-                            value={form.intensity_zone}
-                            onChange={handleChange}
-                        >
-                            <option value="">Ei määritelty</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                        </select>
+                        <label>Tehoalueet</label>
+
+                        <div className="zones-select">
+                            {[1, 2, 3, 4, 5].map((zone) => (
+                                <label key={zone}>
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedZones.includes(zone)}
+                                        onChange={() => toggleZone(zone)}
+                                    />
+                                    Teho {zone}
+                                </label>
+                            ))}
+                        </div>
+
+                        {selectedZones.map((zone) => (
+                            <div key={zone}>
+                                <label>Teho {zone} minuutit</label>
+                                <input
+                                    type="number"
+                                    value={zoneMinutes[zone] || ""}
+                                    onChange={(e) =>
+                                        setZoneMinutes({
+                                            ...zoneMinutes,
+                                            [zone]: e.target.value
+                                        })
+                                    }
+                                />
+                            </div>
+                        ))}
 
                         <label>Kommentti</label>
                         <textarea
@@ -294,7 +288,6 @@ export default function Dashboard() {
                     </form>
                 </section>
 
-                {/* 📊 YHTEENVETO */}
                 <section className="card">
                     <h2>Viikon yhteenveto</h2>
 
@@ -331,13 +324,11 @@ export default function Dashboard() {
                     </div>
                 </section>
 
-                {/* 📋 LISTA */}
                 <section className="card">
                     <h2>Treenit</h2>
 
                     {workouts.map((w) => (
                         <div className="workout-item" key={w.id}>
-
                             <div className="workout-header">
                                 <div>
                                     <strong>
@@ -345,12 +336,6 @@ export default function Dashboard() {
                                     </strong>
 
                                     <span className="sport">{w.sport}</span>
-
-                                    {w.intensity_zone && (
-                                        <span className="zone">
-                                            Teho {w.intensity_zone}
-                                        </span>
-                                    )}
                                 </div>
 
                                 <button
@@ -366,11 +351,6 @@ export default function Dashboard() {
                                 {w.distance_km && ` • ${w.distance_km} km`}
                             </div>
 
-                            {w.comment && (
-                                <p className="workout-comment">
-                                    {w.comment}
-                                </p>
-                            )}
                             {w.workout_zones && w.workout_zones.length > 0 && (
                                 <div className="zones">
                                     {w.workout_zones.map((z, i) => (
@@ -380,10 +360,15 @@ export default function Dashboard() {
                                     ))}
                                 </div>
                             )}
+
+                            {w.comment && (
+                                <p className="workout-comment">
+                                    {w.comment}
+                                </p>
+                            )}
                         </div>
                     ))}
                 </section>
-
             </main>
         </>
     )
