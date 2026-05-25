@@ -110,7 +110,13 @@ app.post('/login', async (req, res) => {
 app.get('/workouts', authenticateToken, async (req, res) => {
     const { data, error } = await supabase
         .from('workouts')
-        .select('*')
+        .select(`
+            *,
+            workout_zones (
+                zone,
+                minutes
+            )
+        `)
         .eq('user_id', req.user.id)
         .order('date', { ascending: false })
 
