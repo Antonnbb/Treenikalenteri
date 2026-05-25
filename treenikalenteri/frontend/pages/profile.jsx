@@ -93,6 +93,22 @@ export default function Profile() {
         }
     }
 
+    const handleRemoveUser = async (email) => {
+        const token = localStorage.getItem("token")
+
+        try {
+            await axios.delete(`http://localhost:3001/shares/${email}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            fetchSharedUsers()
+        } catch (err) {
+            alert("Poisto epäonnistui")
+        }
+    }
+
     return (
         <>
             <Navbar />
@@ -139,7 +155,13 @@ export default function Profile() {
                         <div className="shared-list">
                             {sharedUsers.map((user, i) => (
                                 <div key={i} className="shared-user">
-                                    {user}
+                                    <span>{user}</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveUser(user)}
+                                    >
+                                        Poista
+                                    </button>
                                 </div>
                             ))}
                         </div>
