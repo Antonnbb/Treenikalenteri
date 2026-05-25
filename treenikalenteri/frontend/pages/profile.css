@@ -23,8 +23,23 @@
 }
 
 .shared-user {
-    background: #111;
-    border: 1px solid #2a2a2a;
-    padding: 12px;
-    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.shared-user button {
+    margin-left: auto;
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.shared-user button:hover {
+    background: #dc2626;
 }
