@@ -96,16 +96,22 @@ export default function Dashboard() {
         const finalSport =
             form.sport === "Muu" ? customSport.trim() : form.sport
 
+        const workoutData = {
+            date: form.date,
+            duration_minutes: Number(form.duration_minutes) || 0,
+            distance_km: form.distance_km === "" ? null : Number(form.distance_km),
+            sport: finalSport,
+            intensity_zone: form.intensity_zone === "" ? null : Number(form.intensity_zone),
+            comment: form.comment
+        }
+
         const res = await fetch("http://localhost:3001/workouts", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify({
-                ...form,
-                sport: finalSport
-            })
+            body: JSON.stringify(workoutData)
         })
 
         const data = await res.json()
