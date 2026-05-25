@@ -154,7 +154,15 @@ export default function Analysis() {
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="week" />
                                 <YAxis />
-                                <Tooltip />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: "#fff",
+                                        borderRadius: "10px",
+                                        border: "1px solid #ccc"
+                                    }}
+                                    labelStyle={{ color: "#111", fontWeight: "600" }}
+                                    itemStyle={{ color: "#333" }}
+                                />
                                 <Bar dataKey="minutes" fill="#d4d4d4" />
                             </BarChart>
                         </ResponsiveContainer>
@@ -166,7 +174,15 @@ export default function Analysis() {
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="week" />
                                 <YAxis />
-                                <Tooltip />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: "#fff",
+                                        borderRadius: "10px",
+                                        border: "1px solid #ccc"
+                                    }}
+                                    labelStyle={{ color: "#111", fontWeight: "600" }}
+                                    itemStyle={{ color: "#333" }}
+                                />
                                 <Bar dataKey="distance" fill="#d4d4d4" />
                             </BarChart>
                         </ResponsiveContainer>
