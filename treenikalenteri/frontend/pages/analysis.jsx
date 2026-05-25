@@ -127,13 +127,6 @@ export default function Analysis() {
                     >
                         Aikaväli
                     </button>
-
-                    <button
-                        className={mode === "sports" ? "active" : ""}
-                        onClick={() => setMode("sports")}
-                    >
-                        Lajianalyysi
-                    </button>
                 </div>
 
                 {mode === "year" && (
@@ -161,15 +154,7 @@ export default function Analysis() {
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="week" />
                                 <YAxis />
-                                <Tooltip
-                                    contentStyle={{
-                                        backgroundColor: "#fff",
-                                        borderRadius: "10px",
-                                        border: "1px solid #ccc"
-                                    }}
-                                    labelStyle={{ color: "#111", fontWeight: "600" }}
-                                    itemStyle={{ color: "#333" }}
-                                />
+                                <Tooltip />
                                 <Bar dataKey="minutes" fill="#d4d4d4" />
                             </BarChart>
                         </ResponsiveContainer>
@@ -181,15 +166,7 @@ export default function Analysis() {
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="week" />
                                 <YAxis />
-                                <Tooltip
-                                    contentStyle={{
-                                        backgroundColor: "#fff",
-                                        borderRadius: "10px",
-                                        border: "1px solid #ccc"
-                                    }}
-                                    labelStyle={{ color: "#111", fontWeight: "600" }}
-                                    itemStyle={{ color: "#333" }}
-                                />
+                                <Tooltip />
                                 <Bar dataKey="distance" fill="#d4d4d4" />
                             </BarChart>
                         </ResponsiveContainer>
@@ -265,12 +242,6 @@ export default function Analysis() {
                                 ))
                             )}
                         </div>
-                    </section>
-                )}
-                {mode === "sports" && (
-                    <section className="analysis-card">
-                        <h2>Lajianalyysi</h2>
-                        <p>Treenimäärät lajeittain</p>
                     </section>
                 )}
             </main>
