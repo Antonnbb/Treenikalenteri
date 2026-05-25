@@ -108,25 +108,10 @@ app.post('/login', async (req, res) => {
 })
 
 app.get('/workouts', authenticateToken, async (req, res) => {
-    const userId = req.user.id
-
-    const { data: permissions, error: permissionError } = await supabase
-        .from('sharing_permissions')
-        .select('owner_id')
-        .eq('viewer_id', userId)
-
-    if (permissionError) {
-        return res.status(500).json({ error: permissionError.message })
-    }
-
-    const sharedOwnerIds = permissions.map(p => p.owner_id)
-
-    const allowedUserIds = [userId, ...sharedOwnerIds]
-
     const { data, error } = await supabase
         .from('workouts')
         .select('*')
-        .in('user_id', allowedUserIds)
+        .eq('user_id', req.user.id)
         .order('date', { ascending: false })
 
     if (error) {
