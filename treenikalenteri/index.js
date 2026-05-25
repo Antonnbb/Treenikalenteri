@@ -354,6 +354,38 @@ app.delete('/shares/:email', authenticateToken, async (req, res) => {
     res.json({ message: "Jako poistettu" })
 })
 
+app.get("/sports", authenticateToken, async (req, res) => {
+    const { data, error } = await supabase
+        .from("sports")
+        .select("*")
+        .eq("user_id", req.user.id)
+        .order("name")
+
+    if (error) {
+        return res.status(500).json({ error: error.message })
+    }
+
+    res.json(data)
+})
+
+app.post("/sports", authenticateToken, async (req, res) => {
+    const { name } = req.body
+
+    const { data, error } = await supabase
+        .from("sports")
+        .insert({
+            user_id: req.user.id,
+            name
+        })
+        .select()
+
+    if (error) {
+        return res.json({ message: "Laji on jo olemassa" })
+    }
+
+    res.json(data)
+})
+
 
 const PORT = 3001
 app.listen(PORT, () => {
