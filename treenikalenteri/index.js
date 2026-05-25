@@ -328,6 +328,32 @@ app.get('/shared-workouts', authenticateToken, async (req, res) => {
     res.json(data)
 })
 
+app.delete('/shares/:email', authenticateToken, async (req, res) => {
+    const viewerEmail = req.params.email
+
+    const { data: viewer, error: userError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', viewerEmail)
+        .single()
+
+    if (userError || !viewer) {
+        return res.status(404).json({ error: "Käyttäjää ei löytynyt" })
+    }
+
+    const { error } = await supabase
+        .from('sharing_permissions')
+        .delete()
+        .eq('owner_id', req.user.id)
+        .eq('viewer_id', viewer.id)
+
+    if (error) {
+        return res.status(500).json({ error: error.message })
+    }
+
+    res.json({ message: "Jako poistettu" })
+})
+
 
 const PORT = 3001
 app.listen(PORT, () => {
