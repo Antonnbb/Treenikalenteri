@@ -188,3 +188,7 @@ button:hover {
     cursor: pointer;
     font-size: 18px;
 }
+
+input[type="date"] {
+    color-scheme: dark;
+}
