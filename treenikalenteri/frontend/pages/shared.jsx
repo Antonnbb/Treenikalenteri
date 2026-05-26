@@ -22,6 +22,18 @@ export default function Shared() {
         setWorkouts(res.data)
     }
 
+    const removeUser = async (ownerId) => {
+        const token = localStorage.getItem("token")
+
+        await axios.delete(`http://localhost:3001/shared-workouts/${ownerId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+
+        fetchSharedWorkouts()
+    }
+
     const formatTime = (minutes) => {
         const h = Math.floor(minutes / 60)
         const m = minutes % 60
@@ -52,7 +64,12 @@ export default function Shared() {
                     ) : (
                         Object.entries(groupedWorkouts).map(([user, userWorkouts]) => (
                             <div className="shared-user-group" key={user}>
-                                <h3>{user}</h3>
+                                <h3>
+                                    {user}
+                                    <button onClick={() => removeUser(userWorkouts[0].user_id)}>
+                                        Poista
+                                    </button>
+                                </h3>
 
                                 {userWorkouts.map((w) => (
                                     <div className="shared-workout" key={w.id}>
