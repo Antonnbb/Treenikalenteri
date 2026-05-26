@@ -45,3 +45,28 @@
 .nav-links button:hover {
     background: #dc2626;
 }
+
+.logout-btn {
+    background: linear-gradient(135deg, #ff4d4d, #ff1a1a);
+    border: none;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    margin-top: 0;
+}
+
+.logout-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 0, 0, 0.35);
+}
+
+.logout-btn:active {
+    transform: scale(0.97);
+}
