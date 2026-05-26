@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import Navbar from "./navbar.jsx"
 import axios from "axios"
-import "./dashboard.css"
+import "./home.css"
 
 export default function Dashboard() {
     const [workouts, setWorkouts] = useState([])
