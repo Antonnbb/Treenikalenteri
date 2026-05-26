@@ -66,7 +66,7 @@ export default function Shared() {
                             <div className="shared-user-group" key={user}>
                                 <h3>
                                     {user}
-                                    <button onClick={() => removeUser(userWorkouts[0].user_id)}>
+                                    <button className="buttoni" onClick={() => removeUser(userWorkouts[0].user_id)}>
                                         Poista
                                     </button>
                                 </h3>
