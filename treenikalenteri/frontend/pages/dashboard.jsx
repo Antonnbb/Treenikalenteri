@@ -7,22 +7,19 @@ export default function Dashboard() {
     const [workouts, setWorkouts] = useState([])
     const [customSport, setCustomSport] = useState("")
     const [sportsList, setSportsList] = useState([])
-    const [selectedZones, setSelectedZones] = useState([])
     const [zoneMinutes, setZoneMinutes] = useState({})
+
+    const [form, setForm] = useState({
+        date: "",
+        distance_km: "",
+        sport: "Juoksu",
+        comment: ""
+    })
 
     useEffect(() => {
         fetchWorkouts()
         fetchSports()
     }, [])
-
-    const [form, setForm] = useState({
-        date: "",
-        duration_minutes: "",
-        distance_km: "",
-        sport: "Juoksu",
-        intensity_zone: "",
-        comment: ""
-    })
 
     const fetchWorkouts = async () => {
         const token = localStorage.getItem("token")
@@ -53,7 +50,6 @@ export default function Dashboard() {
         }
     }
 
-    // 🧠 AIKA FORMAT
     const formatTime = (minutes) => {
         const h = Math.floor(minutes / 60)
         const m = minutes % 60
@@ -63,7 +59,6 @@ export default function Dashboard() {
         return `${h} h ${m} min`
     }
 
-    // 🔄 INPUT HANDLER
     const handleChange = (e) => {
         setForm({
             ...form,
@@ -71,40 +66,13 @@ export default function Dashboard() {
         })
     }
 
-    const toggleZone = (zone) => {
-        if (selectedZones.includes(zone)) {
-            setSelectedZones(selectedZones.filter(z => z !== zone))
-
-            const updated = { ...zoneMinutes }
-            delete updated[zone]
-            setZoneMinutes(updated)
-        } else {
-            setSelectedZones([...selectedZones, zone])
-        }
-    }
-
-    // ➕ LISÄÄ TREENI
     const handleSubmit = async (e) => {
         e.preventDefault()
 
         const token = localStorage.getItem("token")
 
-        const zonesArray = selectedZones.map(zone => ({
-            zone,
-            minutes: Number(zoneMinutes[zone] || 0)
-        }))
-
-        // 👇 MUUTA SUN NYKYINEN POST tähän
-        await axios.post("http://localhost:3001/workouts", {
-            date: form.date,
-            sport: form.sport,
-            duration_minutes: Number(form.duration_minutes),
-            distance_km: form.distance_km === "" ? null : Number(form.distance_km),
-            comment: form.comment,
-            zones: zonesArray
-        }, {
-            headers: { Authorization: `Bearer ${token}` }
-        })
+        const finalSport =
+            form.sport === "Muu" ? customSport.trim() : form.sport
 
         if (form.sport === "Muu" && customSport.trim()) {
             try {
@@ -118,54 +86,61 @@ export default function Dashboard() {
                     }
                 )
 
-                fetchSports() // päivittää dropdown heti
+                fetchSports()
             } catch (err) {
                 console.error(err)
             }
         }
 
-        const finalSport =
-            form.sport === "Muu" ? customSport.trim() : form.sport
+        const zonesArray = [1, 2, 3, 4, 5]
+            .map(zone => ({
+                zone,
+                minutes: Number(zoneMinutes[zone] || 0)
+            }))
+            .filter(z => z.minutes > 0)
 
-        const workoutData = {
-            date: form.date,
-            duration_minutes: Number(form.duration_minutes) || 0,
-            distance_km: form.distance_km === "" ? null : Number(form.distance_km),
-            sport: finalSport,
-            intensity_zone: form.intensity_zone === "" ? null : Number(form.intensity_zone),
-            comment: form.comment
-        }
+        const totalMinutes = zonesArray.reduce(
+            (sum, z) => sum + z.minutes,
+            0
+        )
 
-        const res = await fetch("http://localhost:3001/workouts", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify(workoutData)
-        })
+        try {
+            const res = await axios.post(
+                "http://localhost:3001/workouts",
+                {
+                    date: form.date,
+                    sport: finalSport,
+                    duration_minutes: totalMinutes,
+                    distance_km:
+                        form.distance_km === ""
+                            ? null
+                            : Number(form.distance_km),
+                    comment: form.comment,
+                    zones: zonesArray
+                },
+                {
+                    headers: { Authorization: `Bearer ${token}` }
+                }
+            )
 
-        const data = await res.json()
-
-        if (res.ok) {
-            setWorkouts([...workouts])
+            setWorkouts([res.data, ...workouts])
 
             setForm({
                 date: "",
-                duration_minutes: "",
                 distance_km: "",
                 sport: "Juoksu",
-                intensity_zone: "",
                 comment: ""
             })
 
             setCustomSport("")
-        } else {
-            alert(data.error || "Tallennus epäonnistui")
+            setZoneMinutes({})
+            fetchWorkouts()
+        } catch (err) {
+            console.error(err)
+            alert("Tallennus epäonnistui")
         }
     }
 
-    // 🗑 POISTA
     const handleDelete = async (id) => {
         const token = localStorage.getItem("token")
 
@@ -179,7 +154,6 @@ export default function Dashboard() {
         setWorkouts(workouts.filter((w) => w.id !== id))
     }
 
-    // 📊 YHTEENVETO
     const totalMinutes = workouts.reduce(
         (sum, w) => sum + Number(w.duration_minutes || 0),
         0
@@ -191,11 +165,11 @@ export default function Dashboard() {
     )
 
     const zones = workouts.reduce((acc, w) => {
-        if (!w.intensity_zone) return acc
+        if (!w.workout_zones) return acc
 
-        acc[w.intensity_zone] =
-            (acc[w.intensity_zone] || 0) +
-            Number(w.duration_minutes || 0)
+        w.workout_zones.forEach((z) => {
+            acc[z.zone] = (acc[z.zone] || 0) + Number(z.minutes || 0)
+        })
 
         return acc
     }, {})
@@ -214,7 +188,6 @@ export default function Dashboard() {
 
             <main className="dashboard">
 
-                {/* ➕ LISÄÄ */}
                 <section className="card">
                     <h2>Lisää treeni</h2>
 
@@ -230,17 +203,6 @@ export default function Dashboard() {
                         />
 
                         <div className="row">
-                            <div>
-                                <label>Kesto (min)</label>
-                                <input
-                                    name="duration_minutes"
-                                    type="number"
-                                    value={form.duration_minutes}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-
                             <div>
                                 <label>Matka (km)</label>
                                 <input
@@ -281,26 +243,14 @@ export default function Dashboard() {
                             />
                         )}
 
-                        <label>Tehoalueet</label>
+                        <label>Tehoalueet (min)</label>
 
-                        <div className="zones-select">
-                            {[1, 2, 3, 4, 5].map((zone) => (
-                                <label key={zone}>
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedZones.includes(zone)}
-                                        onChange={() => toggleZone(zone)}
-                                    />
-                                    Teho {zone}
-                                </label>
-                            ))}
-                        </div>
-
-                        {selectedZones.map((zone) => (
+                        {[1, 2, 3, 4, 5].map((zone) => (
                             <div key={zone}>
-                                <label>Teho {zone} minuutit</label>
+                                <label>Teho {zone}</label>
                                 <input
                                     type="number"
+                                    placeholder="0"
                                     value={zoneMinutes[zone] || ""}
                                     onChange={(e) =>
                                         setZoneMinutes({
@@ -311,6 +261,7 @@ export default function Dashboard() {
                                 />
                             </div>
                         ))}
+
                         <label>Kommentti</label>
                         <textarea
                             name="comment"
@@ -322,7 +273,6 @@ export default function Dashboard() {
                     </form>
                 </section>
 
-                {/* 📊 YHTEENVETO */}
                 <section className="card">
                     <h2>Viikon yhteenveto</h2>
 
@@ -359,7 +309,6 @@ export default function Dashboard() {
                     </div>
                 </section>
 
-                {/* 📋 LISTA */}
                 <section className="card">
                     <h2>Treenit</h2>
 
@@ -373,12 +322,6 @@ export default function Dashboard() {
                                     </strong>
 
                                     <span className="sport">{w.sport}</span>
-
-                                    {w.intensity_zone && (
-                                        <span className="zone">
-                                            Teho {w.intensity_zone}
-                                        </span>
-                                    )}
                                 </div>
 
                                 <button
@@ -394,11 +337,6 @@ export default function Dashboard() {
                                 {w.distance_km && ` • ${w.distance_km} km`}
                             </div>
 
-                            {w.comment && (
-                                <p className="workout-comment">
-                                    {w.comment}
-                                </p>
-                            )}
                             {w.workout_zones && w.workout_zones.length > 0 && (
                                 <div className="zones">
                                     {w.workout_zones.map((z, i) => (
@@ -407,6 +345,12 @@ export default function Dashboard() {
                                         </div>
                                     ))}
                                 </div>
+                            )}
+
+                            {w.comment && (
+                                <p className="workout-comment">
+                                    {w.comment}
+                                </p>
                             )}
                         </div>
                     ))}
