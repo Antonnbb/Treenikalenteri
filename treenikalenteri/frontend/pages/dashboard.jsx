@@ -342,6 +342,9 @@ export default function Dashboard() {
                                     {w.workout_zones.map((z, i) => (
                                         <div key={i}>
                                             Teho {z.zone}: {z.minutes} min
+                                            <span className="zone-badge">
+                                                {z.zone}
+                                            </span>
                                         </div>
                                     ))}
                                 </div>
