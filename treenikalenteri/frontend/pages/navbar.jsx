@@ -4,9 +4,9 @@ import "./navbar.css"
 export default function Navbar() {
     const navigate = useNavigate()
 
-    const logout = () => {
+    const handleLogout = () => {
         localStorage.removeItem("token")
-        navigate("/")
+        window.location.href = "/"
     }
 
     return (
@@ -14,8 +14,8 @@ export default function Navbar() {
             <h1>Treenikalenteri</h1>
 
             <div className="nav-links">
-                <NavLink to="/dashboard" className={({ isActive }) => isActive ? "active" : ""}>
-                    Kalenteri
+                <NavLink to="/home" className={({ isActive }) => isActive ? "active" : ""}>
+                    Etusivu
                 </NavLink>
 
                 <NavLink to="/analysis" className={({ isActive }) => isActive ? "active" : ""}>
@@ -29,7 +29,9 @@ export default function Navbar() {
                 <NavLink to="/shared" className={({ isActive }) => isActive ? "active" : ""}>
                     Jaetut
                 </NavLink>
-                <button onClick={logout}>Logout</button>
+                <button className="logout-btn" onClick={handleLogout}>
+                    Kirjaudu ulos
+                </button>
             </div>
         </nav>
     )
