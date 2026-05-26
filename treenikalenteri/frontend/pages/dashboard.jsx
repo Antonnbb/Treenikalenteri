@@ -148,7 +148,7 @@ export default function Dashboard() {
         const data = await res.json()
 
         if (res.ok) {
-            setWorkouts([...workouts, data[0]])
+            setWorkouts([...workouts])
 
             setForm({
                 date: "",
