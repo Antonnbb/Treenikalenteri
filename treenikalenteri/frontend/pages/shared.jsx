@@ -62,9 +62,28 @@ export default function Shared() {
                                             <p>{new Date(w.date).toLocaleDateString("fi-FI")}</p>
                                         </div>
 
+                                        {w.workout_zones && w.workout_zones.length > 0 && (
+                                            <div className="zones">
+                                                {w.workout_zones.map((z, i) => (
+                                                    <div key={i}>
+                                                        Teho {z.zone}: {z.minutes} min
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+
                                         <div>
                                             <span>{formatTime(Number(w.duration_minutes || 0))}</span>
                                             {w.distance_km && <span>{w.distance_km} km</span>}
+                                        </div>
+
+                                        {/* badge vaihtoehto */}
+                                        <div>
+                                            {w.workout_zones && w.workout_zones.map((z, i) => (
+                                                <span key={i} className="zone-badge">
+                                                    Z{z.zone}
+                                                </span>
+                                            ))}
                                         </div>
                                     </div>
                                 ))}
