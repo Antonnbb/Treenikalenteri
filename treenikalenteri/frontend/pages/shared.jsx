@@ -57,29 +57,35 @@ export default function Shared() {
 
                                 {userWorkouts.map((w) => (
                                     <div className="shared-workout" key={w.id}>
-                                        <div className="workout-left">
-                                            <div>
-                                                <strong>{new Date(w.date).toLocaleDateString("fi-FI")}</strong>
-                                                <span> {w.sport}</span>
-                                            </div>
 
-                                            <p>
-                                                {formatTime(Number(w.duration_minutes || 0))}
-                                                {w.distance_km && ` • ${w.distance_km} km`}
-                                            </p>
+                                        {/* YLÄRIVI */}
+                                        <div className="workout-top">
+                                            <strong>{new Date(w.date).toLocaleDateString("fi-FI")}</strong>
+                                            <span className="sport"> {w.sport}</span>
 
-                                            {w.workout_zones && w.workout_zones.length > 0 && (
-                                                <div>
-                                                    {w.workout_zones.map((z, i) => (
-                                                        <div key={i}>
-                                                            Teho {z.zone}: {z.minutes} min
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
-
-                                            {w.comment && <p>{w.comment}</p>}
+                                            <button className="delete-btn">🗑</button>
                                         </div>
+
+                                        <div className="workout-meta">
+                                            {formatTime(Number(w.duration_minutes || 0))}
+                                            {w.distance_km && ` • ${w.distance_km} km`}
+                                        </div>
+
+                                        {w.workout_zones && w.workout_zones.length > 0 && (
+                                            <div className="workout-zones">
+                                                {w.workout_zones.map((z, i) => (
+                                                    <div key={i}>
+                                                        Teho {z.zone}: {z.minutes} min
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {w.comment && (
+                                            <div className="workout-comment">
+                                                {w.comment}
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>
