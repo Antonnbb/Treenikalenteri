@@ -62,8 +62,6 @@ export default function Shared() {
                                         <div className="workout-top">
                                             <strong>{new Date(w.date).toLocaleDateString("fi-FI")}</strong>
                                             <span className="sport"> {w.sport}</span>
-
-                                            <button className="delete-btn">🗑</button>
                                         </div>
 
                                         <div className="workout-meta">
