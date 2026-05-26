@@ -323,6 +323,10 @@ app.get('/shared-workouts', authenticateToken, async (req, res) => {
             profiles:user_id (
                 username,
                 email
+            ),
+            workout_zones (
+                zone,
+                minutes
             )
         `)
         .in('user_id', ownerIds)
