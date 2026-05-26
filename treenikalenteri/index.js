@@ -250,6 +250,22 @@ app.put('/workouts/:id', authenticateToken, async (req, res) => {
     res.json(data)
 })
 
+app.delete('/shared-workouts/:ownerId', authenticateToken, async (req, res) => {
+    const ownerId = req.params.ownerId
+
+    const { error } = await supabase
+        .from('sharing_permissions')
+        .delete()
+        .eq('owner_id', ownerId)
+        .eq('viewer_id', req.user.id)
+
+    if (error) {
+        return res.status(500).json({ error: error.message })
+    }
+
+    res.json({ message: 'Poistettu näkyvistä' })
+})
+
 app.post('/shares', authenticateToken, async (req, res) => {
     const { email } = req.body
 
