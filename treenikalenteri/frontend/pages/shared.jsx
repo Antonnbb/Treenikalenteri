@@ -46,7 +46,6 @@ export default function Shared() {
             <main className="shared-page">
                 <section className="shared-card">
                     <h2>Jaetut treenit</h2>
-                    <p>Treenit, jotka muut käyttäjät ovat jakaneet sinulle</p>
 
                     {workouts.length === 0 ? (
                         <p>Sinulle ei ole jaettu treenejä</p>
@@ -60,16 +59,20 @@ export default function Shared() {
 
                                         {/* YLÄRIVI */}
                                         <div className="workout-top">
-                                            <strong>{new Date(w.date).toLocaleDateString("fi-FI")}</strong>
-                                            <span className="sport"> {w.sport}</span>
+                                            <strong>
+                                                {new Date(w.date).toLocaleDateString("fi-FI")}
+                                            </strong>
+                                            <span className="sport">{w.sport}</span>
                                         </div>
 
+                                        {/* META */}
                                         <div className="workout-meta">
                                             {formatTime(Number(w.duration_minutes || 0))}
                                             {w.distance_km && ` • ${w.distance_km} km`}
                                         </div>
 
-                                        {w.workout_zones && w.workout_zones.length > 0 && (
+                                        {/* 🔥 TEHOALUEET */}
+                                        {Array.isArray(w.workout_zones) && w.workout_zones.length > 0 && (
                                             <div className="workout-zones">
                                                 {w.workout_zones.map((z, i) => (
                                                     <div key={i}>
@@ -79,6 +82,7 @@ export default function Shared() {
                                             </div>
                                         )}
 
+                                        {/* KOMMENTTI */}
                                         {w.comment && (
                                             <div className="workout-comment">
                                                 {w.comment}
