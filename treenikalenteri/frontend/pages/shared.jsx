@@ -60,6 +60,16 @@ export default function Shared() {
                                         <div>
                                             <strong>{w.sport}</strong>
                                             <p>{new Date(w.date).toLocaleDateString("fi-FI")}</p>
+
+                                            {w.workout_zones && w.workout_zones.length > 0 && (
+                                                <div className="zones-left">
+                                                    {w.workout_zones.map((z, i) => (
+                                                        <div key={i} className="zone-badge">
+                                                            Z{z.zone} ({z.minutes} min)
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
 
                                         {w.workout_zones && w.workout_zones.length > 0 && (
