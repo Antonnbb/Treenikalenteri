@@ -307,7 +307,7 @@ app.get('/shares', authenticateToken, async (req, res) => {
 app.get('/shared-workouts', authenticateToken, async (req, res) => {
     const { data: permissions, error } = await supabase
         .from('sharing_permissions')
-        .select("*, workout_zones(*)")
+        .select('owner_id')
         .eq('viewer_id', req.user.id)
 
     if (error) return res.status(500).json({ error: error.message })
