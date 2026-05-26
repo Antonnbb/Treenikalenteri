@@ -57,43 +57,28 @@ export default function Shared() {
 
                                 {userWorkouts.map((w) => (
                                     <div className="shared-workout" key={w.id}>
-                                        <div>
-                                            <strong>{w.sport}</strong>
-                                            <p>{new Date(w.date).toLocaleDateString("fi-FI")}</p>
+                                        <div className="workout-left">
+                                            <div>
+                                                <strong>{new Date(w.date).toLocaleDateString("fi-FI")}</strong>
+                                                <span> {w.sport}</span>
+                                            </div>
+
+                                            <p>
+                                                {formatTime(Number(w.duration_minutes || 0))}
+                                                {w.distance_km && ` • ${w.distance_km} km`}
+                                            </p>
 
                                             {w.workout_zones && w.workout_zones.length > 0 && (
-                                                <div className="zones-left">
+                                                <div>
                                                     {w.workout_zones.map((z, i) => (
-                                                        <div key={i} className="zone-badge">
-                                                            Z{z.zone} ({z.minutes} min)
+                                                        <div key={i}>
+                                                            Teho {z.zone}: {z.minutes} min
                                                         </div>
                                                     ))}
                                                 </div>
                                             )}
-                                        </div>
 
-                                        {w.workout_zones && w.workout_zones.length > 0 && (
-                                            <div className="zones">
-                                                {w.workout_zones.map((z, i) => (
-                                                    <div key={i}>
-                                                        Teho {z.zone}: {z.minutes} min
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-
-                                        <div>
-                                            <span>{formatTime(Number(w.duration_minutes || 0))}</span>
-                                            {w.distance_km && <span>{w.distance_km} km</span>}
-                                        </div>
-
-                                        {/* badge vaihtoehto */}
-                                        <div>
-                                            {w.workout_zones && w.workout_zones.map((z, i) => (
-                                                <span key={i} className="zone-badge">
-                                                    Z{z.zone}
-                                                </span>
-                                            ))}
+                                            {w.comment && <p>{w.comment}</p>}
                                         </div>
                                     </div>
                                 ))}
