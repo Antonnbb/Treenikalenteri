@@ -14,7 +14,7 @@ export default function Navbar() {
             <h1>Treenikalenteri</h1>
 
             <div className="nav-links">
-                <NavLink to="/home" className={({ isActive }) => isActive ? "active" : ""}>
+                <NavLink to="/dashboard" className={({ isActive }) => isActive ? "active" : ""}>
                     Etusivu
                 </NavLink>
 
